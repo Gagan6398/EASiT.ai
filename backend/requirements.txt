@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+llama-index
+qdrant-client
+python-dotenv
+pydantic
+llama-index-vector-stores-qdrant
+llama-index-llms-openai
+llama-index-embeddings-openai
