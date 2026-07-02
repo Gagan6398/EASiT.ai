@@ -1,0 +1,12 @@
+node_modules
+.env.local
+.env.*.local
+dist
+build
+*.log
+.git
+.gitignore
+README.md
+backend/__pycache__
+backend/*.db
+.DS_Store

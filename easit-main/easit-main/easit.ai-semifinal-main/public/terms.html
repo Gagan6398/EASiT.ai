@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service — Easit.ai</title>
+  <meta name="description" content="Terms of Service for Easit.ai — AI-powered voice assistant with hallucination-free responses." />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href="https://easit-ai-less-pzzi.vercel.app/terms.html" />
+  <meta name="theme-color" content="#050505" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand-blue: #3B82F6;
+      --brand-purple: #8B5CF6;
+      --deep-black: #050505;
+      --glass-black: rgba(10, 10, 10, 0.7);
+      --surface: rgba(255, 255, 255, 0.03);
+      --surface-hover: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.08);
+      --text-primary: #F9FAFB;
+      --text-secondary: #9CA3AF;
+      --text-muted: #6B7280;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--deep-black);
+      color: var(--text-primary);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Background grain effect */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 100%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Navigation */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(5, 5, 5, 0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-logo span {
+      background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-back {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+
+    .nav-back:hover {
+      color: var(--text-primary);
+      background: var(--surface-hover);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Main content */
+    .content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+    }
+
+    .page-header {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-meta {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* Section styles */
+    .section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-number {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--brand-blue);
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      font-size: 1.375rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      font-size: 0.9375rem;
+    }
+
+    ul, ol {
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+      font-size: 0.9375rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    a {
+      color: var(--brand-blue);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    a:hover {
+      color: #60A5FA;
+      text-decoration: underline;
+    }
+
+    /* Callout box */
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--brand-blue);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout-warning {
+      border-left-color: #F59E0B;
+    }
+
+    .callout p {
+      margin-bottom: 0;
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+    }
+
+    .footer a {
+      color: var(--text-secondary);
+      margin: 0 0.75rem;
+    }
+
+    /* TOC */
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .toc-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .toc ol {
+      padding-left: 1.25rem;
+      margin-bottom: 0;
+    }
+
+    .toc li {
+      margin-bottom: 0.375rem;
+    }
+
+    .toc a {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .toc a:hover {
+      color: var(--brand-blue);
+      text-decoration: none;
+    }
+
+    @media (max-width: 640px) {
+      .content { padding: 2rem 1.25rem 4rem; }
+      .page-title { font-size: 1.75rem; }
+      h2 { font-size: 1.2rem; }
+      .nav-inner { padding: 0.875rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">🤖 <span>Easit.ai</span></a>
+      <a href="/" class="nav-back">← Back to Home</a>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="content">
+    <header class="page-header">
+      <h1 class="page-title">Terms of Service</h1>
+      <p class="page-meta">Last updated: June 8, 2026 · Effective immediately upon use</p>
+    </header>
+
+    <!-- Table of Contents -->
+    <div class="toc">
+      <div class="toc-title">Table of Contents</div>
+      <ol>
+        <li><a href="#acceptance">Acceptance of Terms</a></li>
+        <li><a href="#eligibility">Eligibility</a></li>
+        <li><a href="#account">Account Registration & Security</a></li>
+        <li><a href="#ai-services">AI Services & Output Disclaimer</a></li>
+        <li><a href="#usage">Acceptable Use & Restrictions</a></li>
+        <li><a href="#payment">Payment & Billing</a></li>
+        <li><a href="#ip">Intellectual Property</a></li>
+        <li><a href="#privacy">Privacy</a></li>
+        <li><a href="#disclaimers">Disclaimers</a></li>
+        <li><a href="#liability">Limitation of Liability</a></li>
+        <li><a href="#indemnification">Indemnification</a></li>
+        <li><a href="#termination">Termination</a></li>
+        <li><a href="#governing-law">Governing Law & Disputes</a></li>
+        <li><a href="#changes">Changes to These Terms</a></li>
+        <li><a href="#contact">Contact Information</a></li>
+      </ol>
+    </div>
+
+    <!-- 1. Acceptance -->
+    <section class="section" id="acceptance">
+      <div class="section-number">Section 1</div>
+      <h2>Acceptance of Terms</h2>
+      <p>By accessing, browsing, or using Easit.ai (the "Service"), including any associated applications, APIs, or websites operated by Easit.ai ("we," "us," or "our"), you ("User," "you," or "your") acknowledge that you have read, understood, and agree to be bound by these Terms of Service ("Terms").</p>
+      <p>If you do not agree to these Terms, you must not access or use the Service. Your continued use of the Service following any modifications to these Terms constitutes acceptance of those changes.</p>
+    </section>
+
+    <!-- 2. Eligibility -->
+    <section class="section" id="eligibility">
+      <div class="section-number">Section 2</div>
+      <h2>Eligibility</h2>
+      <p>You must be at least 16 years of age to use this Service. By using Easit.ai, you represent and warrant that:</p>
+      <ul>
+        <li>You are at least 16 years old (or the age of majority in your jurisdiction, whichever is greater).</li>
+        <li>You have the legal capacity to enter into a binding agreement.</li>
+        <li>Your use of the Service does not violate any applicable law or regulation.</li>
+        <li>If you are using the Service on behalf of an organization, you have authority to bind that organization to these Terms.</li>
+      </ul>
+    </section>
+
+    <!-- 3. Account -->
+    <section class="section" id="account">
+      <div class="section-number">Section 3</div>
+      <h2>Account Registration & Security</h2>
+      <p>To access certain features of the Service, you may be required to create an account using Google Sign-In or other authentication methods we support. You agree to:</p>
+      <ul>
+        <li>Provide accurate, current, and complete information during registration.</li>
+        <li>Maintain the security and confidentiality of your account credentials.</li>
+        <li>Promptly notify us of any unauthorized use of your account.</li>
+        <li>Accept responsibility for all activities that occur under your account.</li>
+      </ul>
+      <p>We reserve the right to suspend or terminate accounts that violate these Terms or are inactive for an extended period.</p>
+    </section>
+
+    <!-- 4. AI Services -->
+    <section class="section" id="ai-services">
+      <div class="section-number">Section 4</div>
+      <h2>AI Services & Output Disclaimer</h2>
+
+      <div class="callout callout-warning">
+        <p><strong>⚠️ Important:</strong> While Easit.ai employs hallucination-checking technology and real-time web search grounding powered by Google Gemini, AI-generated outputs may still contain inaccuracies, errors, or omissions. You must independently verify any critical information before relying on it.</p>
+      </div>
+
+      <h3>4.1 Nature of AI Outputs</h3>
+      <p>Easit.ai uses artificial intelligence models, including Google's Gemini AI, with real-time web search grounding to generate responses. You acknowledge and understand that:</p>
+      <ul>
+        <li><strong>AI outputs are not guaranteed to be accurate, complete, or up-to-date.</strong> Despite hallucination-mitigation measures, errors may occur.</li>
+        <li>Outputs are generated probabilistically and may vary between identical queries.</li>
+        <li>AI-generated content does not constitute professional advice (legal, medical, financial, or otherwise).</li>
+        <li>The "verified" and "hallucination-free" features reduce but do not eliminate the possibility of incorrect information.</li>
+      </ul>
+
+      <h3>4.2 Web Search Grounding</h3>
+      <p>Our Service uses real-time web search to ground AI responses in current information. However:</p>
+      <ul>
+        <li>Search results may reflect biases, inaccuracies, or outdated information from third-party sources.</li>
+        <li>We do not control or endorse the content of external websites referenced in AI outputs.</li>
+        <li>Availability and accuracy of web search grounding may vary.</li>
+      </ul>
+
+      <h3>4.3 Voice Interaction</h3>
+      <p>When using voice features, your audio is processed to generate text queries. Voice recognition may introduce transcription errors. You are responsible for reviewing the transcribed input before relying on the output.</p>
+    </section>
+
+    <!-- 5. Usage Restrictions -->
+    <section class="section" id="usage">
+      <div class="section-number">Section 5</div>
+      <h2>Acceptable Use & Restrictions</h2>
+      <p>You agree not to use the Service to:</p>
+      <ul>
+        <li>Generate content that is illegal, harmful, threatening, abusive, harassing, defamatory, or otherwise objectionable.</li>
+        <li>Attempt to reverse-engineer, decompile, or extract source code from the Service or its AI models.</li>
+        <li>Circumvent, disable, or interfere with security-related features, rate limits, or usage restrictions.</li>
+        <li>Use the Service to develop competing AI products or services by systematically extracting outputs.</li>
+        <li>Impersonate any person or entity or misrepresent your affiliation with any party.</li>
+        <li>Introduce malware, viruses, or other harmful code through your use of the Service.</li>
+        <li>Use automated tools (bots, scrapers) to access the Service beyond provided APIs.</li>
+        <li>Violate any applicable local, state, national, or international law.</li>
+      </ul>
+      <p>We reserve the right to investigate and take appropriate action, including suspension or termination of access, for any violations of this section.</p>
+    </section>
+
+    <!-- 6. Payment -->
+    <section class="section" id="payment">
+      <div class="section-number">Section 6</div>
+      <h2>Payment & Billing</h2>
+
+      <h3>6.1 Free Tier</h3>
+      <p>Easit.ai offers a free tier with limited features and usage quotas. Free tier access may be modified or discontinued at any time without notice.</p>
+
+      <h3>6.2 Pro Subscription</h3>
+      <p>The Pro plan is available at <strong>$20.00 USD per month</strong>. By subscribing, you agree to:</p>
+      <ul>
+        <li>Pay all applicable fees in advance on a recurring monthly basis.</li>
+        <li>Provide valid and current payment information.</li>
+        <li>Automatic renewal unless you cancel before the next billing cycle.</li>
+      </ul>
+
+      <h3>6.3 Cancellation & Refunds</h3>
+      <p>You may cancel your subscription at any time. Cancellation takes effect at the end of the current billing period. We do not provide prorated refunds for partial months. Refunds may be issued at our sole discretion in exceptional circumstances.</p>
+
+      <h3>6.4 Price Changes</h3>
+      <p>We reserve the right to change pricing with at least 30 days' notice. Continued use after the price change constitutes acceptance of the new pricing.</p>
+    </section>
+
+    <!-- 7. Intellectual Property -->
+    <section class="section" id="ip">
+      <div class="section-number">Section 7</div>
+      <h2>Intellectual Property</h2>
+
+      <h3>7.1 Our Intellectual Property</h3>
+      <p>The Service, including its design, code, user interface, trademarks, logos, and documentation, is owned by Easit.ai and protected by intellectual property laws. You are granted a limited, non-exclusive, non-transferable, revocable license to use the Service for its intended purpose.</p>
+
+      <h3>7.2 Your Content</h3>
+      <p>You retain ownership of the content you input into the Service ("User Input"). By using the Service, you grant us a limited license to process your User Input solely for the purpose of providing the Service to you.</p>
+
+      <h3>7.3 AI-Generated Output</h3>
+      <p>Subject to applicable law and these Terms, you may use AI-generated outputs for your personal or business purposes. However, you acknowledge that similar or identical outputs may be generated for other users, and Easit.ai does not claim or assign exclusive ownership of generic AI outputs.</p>
+    </section>
+
+    <!-- 8. Privacy -->
+    <section class="section" id="privacy">
+      <div class="section-number">Section 8</div>
+      <h2>Privacy</h2>
+      <p>Your use of the Service is also governed by our <a href="/privacy.html">Privacy Policy</a>, which is incorporated into these Terms by reference. By using the Service, you consent to the data practices described in the Privacy Policy.</p>
+    </section>
+
+    <!-- 9. Disclaimers -->
+    <section class="section" id="disclaimers">
+      <div class="section-number">Section 9</div>
+      <h2>Disclaimers</h2>
+      <div class="callout">
+        <p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, ACCURACY, AND NON-INFRINGEMENT.</p>
+      </div>
+      <p>Without limiting the foregoing, we do not warrant that:</p>
+      <ul>
+        <li>The Service will be uninterrupted, timely, secure, or error-free.</li>
+        <li>AI-generated outputs will be accurate, reliable, complete, or free from hallucinations.</li>
+        <li>The results obtained from the Service will meet your requirements.</li>
+        <li>Any errors in the Service will be corrected.</li>
+      </ul>
+      <p>You use the Service and rely on AI outputs at your own risk.</p>
+    </section>
+
+    <!-- 10. Limitation of Liability -->
+    <section class="section" id="liability">
+      <div class="section-number">Section 10</div>
+      <h2>Limitation of Liability</h2>
+      <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL EASIT.AI, ITS OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, OR AFFILIATES BE LIABLE FOR:</p>
+      <ul>
+        <li>Any indirect, incidental, special, consequential, or punitive damages.</li>
+        <li>Any loss of profits, revenue, data, or business opportunities.</li>
+        <li>Any damages arising from reliance on AI-generated outputs.</li>
+        <li>Any damages exceeding the total amount paid by you to Easit.ai in the twelve (12) months preceding the event giving rise to liability.</li>
+      </ul>
+      <p>This limitation applies regardless of the legal theory (contract, tort, strict liability, or otherwise) and even if Easit.ai has been advised of the possibility of such damages.</p>
+    </section>
+
+    <!-- 11. Indemnification -->
+    <section class="section" id="indemnification">
+      <div class="section-number">Section 11</div>
+      <h2>Indemnification</h2>
+      <p>You agree to indemnify, defend, and hold harmless Easit.ai and its officers, directors, employees, agents, and affiliates from and against any claims, liabilities, damages, losses, costs, and expenses (including reasonable attorneys' fees) arising from:</p>
+      <ul>
+        <li>Your use of the Service or AI-generated outputs.</li>
+        <li>Your violation of these Terms.</li>
+        <li>Your violation of any third-party rights.</li>
+        <li>Any content you submit to the Service.</li>
+      </ul>
+    </section>
+
+    <!-- 12. Termination -->
+    <section class="section" id="termination">
+      <div class="section-number">Section 12</div>
+      <h2>Termination</h2>
+      <p>We may suspend or terminate your access to the Service at any time, with or without cause or notice. You may terminate your account at any time by discontinuing use and contacting us. Upon termination:</p>
+      <ul>
+        <li>Your license to use the Service immediately ceases.</li>
+        <li>We may delete your account data after a reasonable retention period.</li>
+        <li>Provisions that by their nature should survive termination shall survive (including Sections 7, 9, 10, 11, and 13).</li>
+      </ul>
+    </section>
+
+    <!-- 13. Governing Law -->
+    <section class="section" id="governing-law">
+      <div class="section-number">Section 13</div>
+      <h2>Governing Law & Dispute Resolution</h2>
+      <p>These Terms shall be governed by and construed in accordance with the laws of the State of Delaware, United States, without regard to its conflict of law provisions.</p>
+      <p>Any disputes arising from these Terms or the Service shall first be attempted to be resolved through good-faith negotiation. If informal resolution fails, disputes shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association (AAA), with the arbitration conducted in the English language.</p>
+      <p><strong>Class Action Waiver:</strong> You agree that disputes will be resolved on an individual basis and waive any right to participate in a class action lawsuit or class-wide arbitration.</p>
+    </section>
+
+    <!-- 14. Changes -->
+    <section class="section" id="changes">
+      <div class="section-number">Section 14</div>
+      <h2>Changes to These Terms</h2>
+      <p>We reserve the right to update or modify these Terms at any time. Material changes will be communicated through the Service or via the email associated with your account. Changes become effective upon posting unless otherwise stated.</p>
+      <p>Your continued use of the Service after any changes constitutes acceptance of the revised Terms. If you disagree with any modifications, your sole remedy is to discontinue using the Service.</p>
+    </section>
+
+    <!-- 15. Contact -->
+    <section class="section" id="contact">
+      <div class="section-number">Section 15</div>
+      <h2>Contact Information</h2>
+      <p>If you have questions or concerns about these Terms of Service, please contact us:</p>
+      <ul>
+        <li><strong>Email:</strong> <a href="mailto:support@easit.ai">support@easit.ai</a></li>
+        <li><strong>Website:</strong> <a href="https://easit-ai-less-pzzi.vercel.app/">https://easit-ai-less-pzzi.vercel.app/</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2026 Easit.ai. All rights reserved.</p>
+    <p style="margin-top: 0.5rem;">
+      <a href="/">Home</a>
+      <a href="/terms.html">Terms</a>
+      <a href="/privacy.html">Privacy</a>
+    </p>
+  </footer>
+</body>
+</html>

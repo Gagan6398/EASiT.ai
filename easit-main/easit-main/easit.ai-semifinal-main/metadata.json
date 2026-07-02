@@ -1,0 +1,7 @@
+{
+  "name": "Easit.ai",
+  "description": "A modern, conversational AI assistant for the SolveEarn community, supporting both voice and text interactions.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

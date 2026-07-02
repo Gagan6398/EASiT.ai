@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Easit.ai</title>
+  <meta name="description" content="Privacy Policy for Easit.ai — Learn how we collect, use, and protect your personal data." />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href="https://easit-ai-less-pzzi.vercel.app/privacy.html" />
+  <meta name="theme-color" content="#050505" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand-blue: #3B82F6;
+      --brand-purple: #8B5CF6;
+      --deep-black: #050505;
+      --glass-black: rgba(10, 10, 10, 0.7);
+      --surface: rgba(255, 255, 255, 0.03);
+      --surface-hover: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.08);
+      --text-primary: #F9FAFB;
+      --text-secondary: #9CA3AF;
+      --text-muted: #6B7280;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--deep-black);
+      color: var(--text-primary);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 100%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(5, 5, 5, 0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-logo span {
+      background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-back {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+
+    .nav-back:hover {
+      color: var(--text-primary);
+      background: var(--surface-hover);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+    }
+
+    .page-header {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-meta {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-number {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--brand-blue);
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      font-size: 1.375rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      font-size: 0.9375rem;
+    }
+
+    ul, ol {
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+      font-size: 0.9375rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    a {
+      color: var(--brand-blue);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    a:hover {
+      color: #60A5FA;
+      text-decoration: underline;
+    }
+
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--brand-blue);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout-purple {
+      border-left-color: var(--brand-purple);
+    }
+
+    .callout p {
+      margin-bottom: 0;
+    }
+
+    /* Data table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0 1.5rem;
+      font-size: 0.875rem;
+    }
+
+    .data-table th,
+    .data-table td {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--surface);
+    }
+
+    .data-table td {
+      color: var(--text-secondary);
+    }
+
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+    }
+
+    .footer a {
+      color: var(--text-secondary);
+      margin: 0 0.75rem;
+    }
+
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .toc-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .toc ol {
+      padding-left: 1.25rem;
+      margin-bottom: 0;
+    }
+
+    .toc li {
+      margin-bottom: 0.375rem;
+    }
+
+    .toc a {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .toc a:hover {
+      color: var(--brand-blue);
+      text-decoration: none;
+    }
+
+    /* Rights badge */
+    .rights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.75rem;
+      margin: 1rem 0 1.5rem;
+    }
+
+    .rights-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .rights-item strong {
+      display: block;
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .rights-item p {
+      font-size: 0.8125rem;
+      margin-bottom: 0;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 640px) {
+      .content { padding: 2rem 1.25rem 4rem; }
+      .page-title { font-size: 1.75rem; }
+      h2 { font-size: 1.2rem; }
+      .nav-inner { padding: 0.875rem 1.25rem; }
+      .rights-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">🤖 <span>Easit.ai</span></a>
+      <a href="/" class="nav-back">← Back to Home</a>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="content">
+    <header class="page-header">
+      <h1 class="page-title">Privacy Policy</h1>
+      <p class="page-meta">Last updated: June 8, 2026 · Effective immediately</p>
+    </header>
+
+    <div class="callout callout-purple">
+      <p><strong>Your privacy matters.</strong> Easit.ai is committed to protecting your personal data with transparency and integrity. This policy explains what data we collect, how we use it, and the rights you have under applicable data protection laws including the GDPR, CCPA, and other regulations.</p>
+    </div>
+
+    <!-- Table of Contents -->
+    <div class="toc">
+      <div class="toc-title">Table of Contents</div>
+      <ol>
+        <li><a href="#information-collection">Information We Collect</a></li>
+        <li><a href="#ai-processing">AI Data Processing</a></li>
+        <li><a href="#data-usage">How We Use Your Data</a></li>
+        <li><a href="#legal-basis">Legal Basis for Processing (GDPR)</a></li>
+        <li><a href="#cookies">Cookies & Tracking Technologies</a></li>
+        <li><a href="#third-parties">Third-Party Services</a></li>
+        <li><a href="#data-sharing">Data Sharing & Disclosure</a></li>
+        <li><a href="#security">Data Security</a></li>
+        <li><a href="#retention">Data Retention</a></li>
+        <li><a href="#user-rights">Your Rights</a></li>
+        <li><a href="#international">International Data Transfers</a></li>
+        <li><a href="#children">Children's Privacy</a></li>
+        <li><a href="#changes">Changes to This Policy</a></li>
+        <li><a href="#contact">Contact Us</a></li>
+      </ol>
+    </div>
+
+    <!-- 1. Information Collection -->
+    <section class="section" id="information-collection">
+      <div class="section-number">Section 1</div>
+      <h2>Information We Collect</h2>
+
+      <h3>1.1 Information You Provide Directly</h3>
+      <ul>
+        <li><strong>Account Information:</strong> Name, email address, and profile picture provided through Google Sign-In authentication.</li>
+        <li><strong>User Queries:</strong> Text and voice inputs you submit to the AI assistant.</li>
+        <li><strong>Payment Information:</strong> Billing details processed through our third-party payment processor (we do not store full credit card numbers).</li>
+        <li><strong>Communications:</strong> Any messages or feedback you send to our support channels.</li>
+      </ul>
+
+      <h3>1.2 Information Collected Automatically</h3>
+      <ul>
+        <li><strong>Device Information:</strong> Browser type and version, operating system, device type, and screen resolution.</li>
+        <li><strong>Usage Data:</strong> Pages visited, features used, session duration, interaction timestamps, and feature preferences (e.g., smart preset selections).</li>
+        <li><strong>Network Information:</strong> IP address, approximate geographic location (city/country level), and referring URLs.</li>
+        <li><strong>Performance Data:</strong> Page load times, error logs, and service performance metrics.</li>
+      </ul>
+
+      <h3>1.3 Information from Third Parties</h3>
+      <ul>
+        <li><strong>Google Sign-In:</strong> Profile information (name, email, profile picture) authorized by you during authentication.</li>
+        <li><strong>Analytics Providers:</strong> Aggregated usage and demographic data.</li>
+      </ul>
+    </section>
+
+    <!-- 2. AI Processing -->
+    <section class="section" id="ai-processing">
+      <div class="section-number">Section 2</div>
+      <h2>AI Data Processing</h2>
+
+      <div class="callout">
+        <p><strong>How your data flows through our AI:</strong> When you submit a query, it is sent to Google's Gemini AI for processing with real-time web search grounding. This section explains how AI-specific data handling works.</p>
+      </div>
+
+      <h3>2.1 Query Processing</h3>
+      <p>When you interact with Easit.ai:</p>
+      <ul>
+        <li>Your text or voice input is transmitted to Google's Gemini AI API for response generation.</li>
+        <li>Queries may be sent to Google's web search services for real-time grounding and verification.</li>
+        <li>Hallucination-checking processes may analyze outputs before delivery to you.</li>
+      </ul>
+
+      <h3>2.2 Voice Data</h3>
+      <p>When using voice interaction features:</p>
+      <ul>
+        <li>Audio is captured by your browser and converted to text using speech recognition.</li>
+        <li>We process the transcribed text, not raw audio recordings.</li>
+        <li>Voice data is not stored after the transcription process is complete.</li>
+      </ul>
+
+      <h3>2.3 AI Model Training</h3>
+      <p>We <strong>do not</strong> use your personal queries or conversations to train or fine-tune AI models. Your interactions are used solely to provide the Service to you and for aggregate analytics purposes.</p>
+
+      <h3>2.4 Data Shared with AI Providers</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Data Type</th>
+            <th>Shared With</th>
+            <th>Purpose</th>
+            <th>Retention</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Text queries</td>
+            <td>Google (Gemini API)</td>
+            <td>Response generation</td>
+            <td>Per Google's API terms</td>
+          </tr>
+          <tr>
+            <td>Search context</td>
+            <td>Google Search</td>
+            <td>Web grounding</td>
+            <td>Per Google's terms</td>
+          </tr>
+          <tr>
+            <td>Smart preset config</td>
+            <td>Not shared</td>
+            <td>Local feature</td>
+            <td>Session-based</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 3. Data Usage -->
+    <section class="section" id="data-usage">
+      <div class="section-number">Section 3</div>
+      <h2>How We Use Your Data</h2>
+      <p>We use collected information to:</p>
+      <ul>
+        <li><strong>Provide the Service:</strong> Process your queries, generate AI responses, and deliver features.</li>
+        <li><strong>Authentication:</strong> Verify your identity and manage account access.</li>
+        <li><strong>Improve the Service:</strong> Analyze usage patterns to enhance performance, user experience, and reliability.</li>
+        <li><strong>Billing:</strong> Process payments and manage subscriptions for Pro users.</li>
+        <li><strong>Security:</strong> Detect, prevent, and respond to fraud, abuse, and security threats.</li>
+        <li><strong>Communications:</strong> Send service-related notifications, updates, and support responses.</li>
+        <li><strong>Legal Compliance:</strong> Fulfill legal obligations and respond to lawful requests.</li>
+      </ul>
+    </section>
+
+    <!-- 4. Legal Basis -->
+    <section class="section" id="legal-basis">
+      <div class="section-number">Section 4</div>
+      <h2>Legal Basis for Processing (GDPR)</h2>
+      <p>For users in the European Economic Area (EEA), United Kingdom, and Switzerland, we process personal data under the following legal bases:</p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Legal Basis</th>
+            <th>Processing Activity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Contract Performance</strong></td>
+            <td>Providing the AI assistant service, account management, billing</td>
+          </tr>
+          <tr>
+            <td><strong>Legitimate Interest</strong></td>
+            <td>Service improvement, analytics, fraud prevention, security</td>
+          </tr>
+          <tr>
+            <td><strong>Consent</strong></td>
+            <td>Marketing communications, optional cookies, voice data processing</td>
+          </tr>
+          <tr>
+            <td><strong>Legal Obligation</strong></td>
+            <td>Tax records, responding to legal requests, regulatory compliance</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 5. Cookies -->
+    <section class="section" id="cookies">
+      <div class="section-number">Section 5</div>
+      <h2>Cookies & Tracking Technologies</h2>
+
+      <h3>5.1 Types of Cookies We Use</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Cookie Type</th>
+            <th>Purpose</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Essential</strong></td>
+            <td>Authentication, session management, security</td>
+            <td>Session / 30 days</td>
+          </tr>
+          <tr>
+            <td><strong>Functional</strong></td>
+            <td>User preferences, smart preset settings</td>
+            <td>1 year</td>
+          </tr>
+          <tr>
+            <td><strong>Analytics</strong></td>
+            <td>Usage patterns, performance monitoring</td>
+            <td>2 years</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>5.2 Managing Cookies</h3>
+      <p>You can control cookies through your browser settings. Please note that disabling essential cookies may affect the functionality of the Service. Most browsers allow you to:</p>
+      <ul>
+        <li>View and delete existing cookies.</li>
+        <li>Block all or certain types of cookies.</li>
+        <li>Set preferences for specific websites.</li>
+      </ul>
+    </section>
+
+    <!-- 6. Third Parties -->
+    <section class="section" id="third-parties">
+      <div class="section-number">Section 6</div>
+      <h2>Third-Party Services</h2>
+      <p>We use the following third-party services to operate Easit.ai:</p>
+      <ul>
+        <li><strong>Google Gemini AI:</strong> AI response generation and web search grounding. Subject to <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's Privacy Policy</a>.</li>
+        <li><strong>Google Sign-In:</strong> Authentication services. Subject to Google's Privacy Policy.</li>
+        <li><strong>Vercel:</strong> Hosting and deployment infrastructure. Subject to <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Vercel's Privacy Policy</a>.</li>
+        <li><strong>Payment Processors:</strong> Secure payment handling. Card data is processed directly by PCI-compliant processors and never touches our servers.</li>
+      </ul>
+      <p>We are not responsible for the privacy practices of third-party services. We encourage you to review their respective privacy policies.</p>
+    </section>
+
+    <!-- 7. Data Sharing -->
+    <section class="section" id="data-sharing">
+      <div class="section-number">Section 7</div>
+      <h2>Data Sharing & Disclosure</h2>
+      <p>We do not sell your personal data. We may share data only in these limited circumstances:</p>
+      <ul>
+        <li><strong>Service Providers:</strong> With trusted partners who assist in operating the Service, bound by contractual data protection obligations.</li>
+        <li><strong>Legal Requirements:</strong> When required by law, subpoena, court order, or governmental request.</li>
+        <li><strong>Safety:</strong> To protect the rights, safety, or property of Easit.ai, our users, or the public.</li>
+        <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of assets, with notice to affected users.</li>
+        <li><strong>Consent:</strong> With your explicit consent for any other sharing purposes.</li>
+      </ul>
+    </section>
+
+    <!-- 8. Security -->
+    <section class="section" id="security">
+      <div class="section-number">Section 8</div>
+      <h2>Data Security</h2>
+      <p>We implement industry-standard security measures to protect your personal data, including:</p>
+      <ul>
+        <li><strong>Encryption:</strong> Data is encrypted in transit (TLS 1.3) and at rest.</li>
+        <li><strong>Access Controls:</strong> Role-based access restrictions for internal personnel.</li>
+        <li><strong>Infrastructure:</strong> Secure cloud hosting with Vercel's enterprise-grade infrastructure.</li>
+        <li><strong>Monitoring:</strong> Continuous security monitoring and vulnerability assessments.</li>
+        <li><strong>Incident Response:</strong> Established procedures for detecting and responding to data breaches.</li>
+      </ul>
+      <p>While we strive to protect your data, no method of transmission over the Internet or electronic storage is 100% secure. We cannot guarantee absolute security.</p>
+    </section>
+
+    <!-- 9. Data Retention -->
+    <section class="section" id="retention">
+      <div class="section-number">Section 9</div>
+      <h2>Data Retention</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Data Type</th>
+            <th>Retention Period</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Account Information</td>
+            <td>Duration of account + 30 days</td>
+            <td>Service provision</td>
+          </tr>
+          <tr>
+            <td>AI Query Logs</td>
+            <td>90 days</td>
+            <td>Service improvement & debugging</td>
+          </tr>
+          <tr>
+            <td>Payment Records</td>
+            <td>7 years</td>
+            <td>Tax and legal compliance</td>
+          </tr>
+          <tr>
+            <td>Usage Analytics</td>
+            <td>24 months</td>
+            <td>Service optimization</td>
+          </tr>
+          <tr>
+            <td>Voice Transcriptions</td>
+            <td>Not retained</td>
+            <td>Processed and discarded in real-time</td>
+          </tr>
+          <tr>
+            <td>Support Communications</td>
+            <td>3 years</td>
+            <td>Customer service quality</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>After the retention period, data is securely deleted or anonymized. You may request earlier deletion of your data (see Your Rights section).</p>
+    </section>
+
+    <!-- 10. User Rights -->
+    <section class="section" id="user-rights">
+      <div class="section-number">Section 10</div>
+      <h2>Your Rights</h2>
+      <p>Depending on your location, you may have the following rights regarding your personal data:</p>
+
+      <div class="rights-grid">
+        <div class="rights-item">
+          <strong>🔍 Right to Access</strong>
+          <p>Request a copy of the personal data we hold about you.</p>
+        </div>
+        <div class="rights-item">
+          <strong>✏️ Right to Rectification</strong>
+          <p>Request correction of inaccurate or incomplete data.</p>
+        </div>
+        <div class="rights-item">
+          <strong>🗑️ Right to Erasure</strong>
+          <p>Request deletion of your personal data ("right to be forgotten").</p>
+        </div>
+        <div class="rights-item">
+          <strong>⏸️ Right to Restrict</strong>
+          <p>Request restricted processing of your data in certain cases.</p>
+        </div>
+        <div class="rights-item">
+          <strong>📦 Right to Portability</strong>
+          <p>Receive your data in a structured, machine-readable format.</p>
+        </div>
+        <div class="rights-item">
+          <strong>🚫 Right to Object</strong>
+          <p>Object to processing based on legitimate interests or direct marketing.</p>
+        </div>
+        <div class="rights-item">
+          <strong>🤖 Automated Decisions</strong>
+          <p>Right not to be subject to decisions based solely on automated processing.</p>
+        </div>
+        <div class="rights-item">
+          <strong>↩️ Withdraw Consent</strong>
+          <p>Withdraw consent at any time where processing is based on consent.</p>
+        </div>
+      </div>
+
+      <h3>How to Exercise Your Rights</h3>
+      <p>To exercise any of these rights, contact us at <a href="mailto:support@easit.ai">support@easit.ai</a>. We will respond to your request within 30 days (or within the timeframe required by applicable law). We may ask you to verify your identity before processing your request.</p>
+
+      <h3>California Residents (CCPA/CPRA)</h3>
+      <p>If you are a California resident, you have additional rights under the California Consumer Privacy Act:</p>
+      <ul>
+        <li>Right to know what personal information is collected, used, shared, or sold.</li>
+        <li>Right to delete personal information held by businesses.</li>
+        <li>Right to opt-out of the sale of personal information. <strong>We do not sell personal data.</strong></li>
+        <li>Right to non-discrimination for exercising your privacy rights.</li>
+      </ul>
+    </section>
+
+    <!-- 11. International Transfers -->
+    <section class="section" id="international">
+      <div class="section-number">Section 11</div>
+      <h2>International Data Transfers</h2>
+      <p>Your data may be transferred to and processed in countries outside your country of residence, including the United States, where our hosting and AI processing infrastructure is located.</p>
+      <p>For transfers from the EEA/UK, we rely on:</p>
+      <ul>
+        <li>Standard Contractual Clauses (SCCs) approved by the European Commission.</li>
+        <li>Adequacy decisions where applicable.</li>
+        <li>Additional safeguards including encryption and access controls.</li>
+      </ul>
+    </section>
+
+    <!-- 12. Children -->
+    <section class="section" id="children">
+      <div class="section-number">Section 12</div>
+      <h2>Children's Privacy</h2>
+      <p>Easit.ai is not intended for use by children under the age of 16. We do not knowingly collect personal data from children under 16. If we become aware that we have inadvertently collected personal data from a child under 16, we will take steps to delete such data promptly.</p>
+      <p>If you are a parent or guardian and believe your child has provided us with personal data, please contact us at <a href="mailto:support@easit.ai">support@easit.ai</a>.</p>
+    </section>
+
+    <!-- 13. Changes -->
+    <section class="section" id="changes">
+      <div class="section-number">Section 13</div>
+      <h2>Changes to This Policy</h2>
+      <p>We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. When we make material changes:</p>
+      <ul>
+        <li>We will update the "Last updated" date at the top of this page.</li>
+        <li>We will notify registered users via email or in-app notification for significant changes.</li>
+        <li>We may provide a summary of key changes.</li>
+      </ul>
+      <p>We encourage you to review this Privacy Policy periodically. Your continued use of the Service after changes are posted constitutes acceptance of the updated policy.</p>
+    </section>
+
+    <!-- 14. Contact -->
+    <section class="section" id="contact">
+      <div class="section-number">Section 14</div>
+      <h2>Contact Us</h2>
+      <p>If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:</p>
+      <ul>
+        <li><strong>Email:</strong> <a href="mailto:support@easit.ai">support@easit.ai</a></li>
+        <li><strong>Data Protection Inquiries:</strong> <a href="mailto:privacy@easit.ai">privacy@easit.ai</a></li>
+        <li><strong>Website:</strong> <a href="https://easit-ai-less-pzzi.vercel.app/">https://easit-ai-less-pzzi.vercel.app/</a></li>
+      </ul>
+      <p>If you are in the EEA and believe we have not adequately addressed your data protection concerns, you have the right to lodge a complaint with your local Data Protection Authority (DPA).</p>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2026 Easit.ai. All rights reserved.</p>
+    <p style="margin-top: 0.5rem;">
+      <a href="/">Home</a>
+      <a href="/terms.html">Terms</a>
+      <a href="/privacy.html">Privacy</a>
+    </p>
+  </footer>
+</body>
+</html>
