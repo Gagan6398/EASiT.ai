@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: easit-backend
+    env: python
+    rootDir: easit-main/easit-main/easit.ai-semifinal-main
+    buildCommand: "cd backend && pip install -r requirements.txt"
+    startCommand: "cd backend && gunicorn --worker-class gthread --threads 10 --bind 0.0.0.0:$PORT main:app"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
