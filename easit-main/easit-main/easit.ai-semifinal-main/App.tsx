@@ -92,7 +92,25 @@ const App: React.FC = () => {
                     user ? <SettingsPage user={user} onSignOut={handleSignOut} /> : <Navigate to="/" replace />
                 } 
             />
+            <Route path="*" element={<NotFoundPage />} />
         </Routes>
+    );
+};
+
+const NotFoundPage: React.FC = () => {
+    const navigate = useNavigate();
+    return (
+        <div className="min-h-screen bg-cream-bg flex flex-col items-center justify-center text-center p-6 font-sans">
+            <h1 className="text-7xl font-bold text-[#CFA54D] mb-4">404</h1>
+            <p className="text-xl text-text-dark mb-2 font-semibold">Page not found</p>
+            <p className="text-gray-500 mb-8">The page you're looking for doesn't exist or has been moved.</p>
+            <button 
+                onClick={() => navigate('/')}
+                className="bg-gold-gradient text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all"
+            >
+                Go Home
+            </button>
+        </div>
     );
 };
 

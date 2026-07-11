@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck, Search, Zap, Mic, Lock, Code } from 'lucide-react';
 import { FooterAssistant } from './FooterAssistant.tsx';
 
 export const FeaturesPage: React.FC = () => {
     const navigate = useNavigate();
+
+    useEffect(() => { document.title = 'Features — Easit.ai | Hallucination-Free AI'; }, []);
 
     return (
         <div className="bg-cream-bg text-text-dark font-sans min-h-screen flex flex-col">

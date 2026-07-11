@@ -2,24 +2,64 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Homepage -->
   <url>
-    <loc>https://easit-ai-less-pzzi.vercel.app/</loc>
-    <lastmod>2026-06-08</lastmod>
+    <loc>https://easit-ai.netlify.app/</loc>
+    <lastmod>2026-07-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
+  <!-- About -->
+  <url>
+    <loc>https://easit-ai.netlify.app/about</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Features -->
+  <url>
+    <loc>https://easit-ai.netlify.app/features</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Pricing -->
+  <url>
+    <loc>https://easit-ai.netlify.app/pricing</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Legal Hub -->
+  <url>
+    <loc>https://easit-ai.netlify.app/legal</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- Sign In / Sign Up -->
+  <url>
+    <loc>https://easit-ai.netlify.app/auth</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
   <!-- Terms of Service -->
   <url>
-    <loc>https://easit-ai-less-pzzi.vercel.app/terms.html</loc>
-    <lastmod>2026-06-08</lastmod>
+    <loc>https://easit-ai.netlify.app/terms.html</loc>
+    <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <!-- Privacy Policy -->
   <url>
-    <loc>https://easit-ai-less-pzzi.vercel.app/privacy.html</loc>
-    <lastmod>2026-06-08</lastmod>
+    <loc>https://easit-ai.netlify.app/privacy.html</loc>
+    <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>

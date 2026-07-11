@@ -75,7 +75,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onEnterA
                     <FooterLink to="/legal">Contact</FooterLink>
                 </nav>
                 <div className="text-sm text-gray-500 font-sans">
-                    &copy; 2024 Easit AI. All rights reserved.
+                    &copy; 2025 Easit AI. All rights reserved.
                 </div>
             </footer>
 

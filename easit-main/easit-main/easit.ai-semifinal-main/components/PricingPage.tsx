@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, Clock } from 'lucide-react';
 import { FooterAssistant } from './FooterAssistant.tsx';
-import { PaymentModal } from './PaymentModal.tsx';
 
 export const PricingPage: React.FC = () => {
     const navigate = useNavigate();
-    const [paymentModal, setPaymentModal] = useState<{ title: string; amount: number } | null>(null);
 
     return (
         <div className="bg-cream-bg text-text-dark font-sans min-h-screen flex flex-col">
@@ -37,19 +35,19 @@ export const PricingPage: React.FC = () => {
                         title="Pro Account" 
                         price="$20"
                         priceInINR={1999}
-                        buttonText="Upgrade Now"
+                        buttonText="Coming Soon"
+                        comingSoon
                         features={["Unlimited Verified Searches", "Priority server access", "Custom persona templates", "API Access (Early)", "Direct support"]}
-                        onSelect={() => setPaymentModal({ title: "Pro Account", amount: 1999 })}
+                        onSelect={() => {}}
                     />
                 </div>
             </main>
             <FooterAssistant />
-            {paymentModal && <PaymentModal title={paymentModal.title} amount={paymentModal.amount} onClose={() => setPaymentModal(null)} />}
         </div>
     );
 };
 
-const PricingCard = ({ title, price, features, highlight, buttonText, onSelect, priceInINR }: { title: string; price: string; features: string[]; highlight?: boolean; buttonText: string; onSelect: () => void; priceInINR?: number }) => (
+const PricingCard = ({ title, price, features, highlight, buttonText, onSelect, priceInINR, comingSoon }: { title: string; price: string; features: string[]; highlight?: boolean; buttonText: string; onSelect: () => void; priceInINR?: number; comingSoon?: boolean }) => (
     <div className={`p-10 rounded-3xl border flex flex-col h-full transition-all ${highlight ? 'border-[#CFA54D] bg-gold-gradient/5 shadow-[0_0_50px_rgba(59,130,246,0.1)]' : 'border-gray-100 bg-white shadow-sm hover:border-gray-200'}`}>
         <div className="mb-8">
             <h3 className="text-lg font-medium text-gray-600 mb-2">{title}</h3>
@@ -64,8 +62,15 @@ const PricingCard = ({ title, price, features, highlight, buttonText, onSelect, 
                 </li>
             ))}
         </ul>
-        <button onClick={onSelect} className={`w-full py-4 rounded-full font-bold transition-all ${highlight ? 'bg-gold-gradient text-white hover:bg-gold-gradient/90' : 'bg-white text-black hover:bg-gray-200'}`}>
-            {buttonText}
-        </button>
+        {comingSoon ? (
+            <button disabled className="w-full py-4 rounded-full font-bold bg-gray-100 text-gray-400 cursor-not-allowed flex items-center justify-center gap-2 border border-gray-200">
+                <Clock size={18} />
+                Coming Soon
+            </button>
+        ) : (
+            <button onClick={onSelect} className={`w-full py-4 rounded-full font-bold transition-all ${highlight ? 'bg-gold-gradient text-white hover:bg-gold-gradient/90' : 'bg-white text-black hover:bg-gray-200'}`}>
+                {buttonText}
+            </button>
+        )}
     </div>
 );

@@ -1,14 +1,17 @@
 # Easit.ai Robots.txt
-# https://easit-ai-less-pzzi.vercel.app/
+# https://easit-ai.netlify.app/
 
 User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /backend/
 Disallow: /_vercel/
+Disallow: /chat
+Disallow: /research
+Disallow: /settings
 
 # Sitemaps
-Sitemap: https://easit-ai-less-pzzi.vercel.app/sitemap.xml
+Sitemap: https://easit-ai.netlify.app/sitemap.xml
 
 # Crawl-delay (optional, respected by some bots)
 User-agent: AhrefsBot

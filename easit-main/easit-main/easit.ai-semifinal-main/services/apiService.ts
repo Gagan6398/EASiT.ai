@@ -28,21 +28,35 @@ const handleResponse = async (response: Response) => {
     return response.json();
 };
 
+/**
+ * Wrapper around fetch that handles backend-unavailable gracefully.
+ * For auth endpoints: throws the error (no more silent guest fallback).
+ * For conversations: returns empty/offline data when backend is down.
+ */
 const safeFetch = async (url: string, options: RequestInit) => {
     try {
         const response = await fetch(url, options);
         return await handleResponse(response);
     } catch (error: any) {
-        if (url.includes('/auth/login') || url.includes('/auth/signup') || url.includes('/auth/google')) {
-             return {
-                token: 'guest-demo-token',
+        // Auth endpoints: propagate the error so callers can handle it
+        // (e.g., AuthPage falls back to client-side JWT decode)
+        if (url.includes('/auth/login') || url.includes('/auth/signup')) {
+            throw new Error(error.message || 'Cannot connect to server. Please try again.');
+        }
+
+        // Google auth: return a marker so the caller knows to fall back
+        if (url.includes('/auth/google')) {
+            return {
+                token: 'client-side-google-token',
                 user: {
-                    name: 'Offline User',
+                    name: 'Google User',
                     email: 'guest@solveearn.com',
                     picture: undefined
                 }
             };
         }
+
+        // Conversations: return offline data
         if (url.includes('/conversations')) {
             return [
                  {

@@ -53,7 +53,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ user, onSignOut }) =
                         <SettingsIcon size={20} /> Functional Preferences
                     </h2>
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-gray-100">
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
                             <div>
                                 <h3 className="font-medium text-text-dark">Persona Configuration</h3>
                                 <p className="text-xs text-gray-500">Configure AI tone, style, and verbosity in the Chat UI.</p>
@@ -63,7 +63,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ user, onSignOut }) =
                             </button>
                         </div>
                         
-                        <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-gray-100">
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
                             <div>
                                 <h3 className="font-medium text-text-dark">Deep Research Mode</h3>
                                 <p className="text-xs text-gray-500">Access the G-C-G-O Consensus Architecture.</p>

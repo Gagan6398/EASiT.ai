@@ -271,7 +271,7 @@ const DeepResearchApp: React.FC<DeepResearchAppProps> = ({ user }) => {
 
                             {/* System Response */}
                             <div className="flex justify-start">
-                                <div className="bg-gradient-to-br from-[#0a0a0f] to-[#12121a] border border-brand-purple/30 rounded-3xl rounded-tl-sm p-6 w-full shadow-[0_0_30px_rgba(139,92,246,0.05)]">
+                                <div className="bg-white border border-gray-200 rounded-3xl rounded-tl-sm p-6 w-full shadow-lg">
                                     {/* Header bar */}
                                     <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
                                         <div className="flex items-center gap-3 flex-wrap">
@@ -340,7 +340,7 @@ const DeepResearchApp: React.FC<DeepResearchAppProps> = ({ user }) => {
                     {/* Streaming preview */}
                     {isResearching && streamingText && (
                         <div className="flex justify-start animate-slide-up-fade-in">
-                            <div className="bg-gradient-to-br from-[#0a0a0f] to-[#12121a] border border-brand-purple/20 rounded-3xl rounded-tl-sm p-6 w-full">
+                            <div className="bg-white border border-gray-200 rounded-3xl rounded-tl-sm p-6 w-full shadow-lg">
                                 <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
                                     <Loader2 size={14} className="text-[#B8860B] animate-spin" />
                                     <span className="text-[10px] font-bold text-[#B8860B] uppercase tracking-widest">Streaming response...</span>
@@ -371,7 +371,7 @@ const DeepResearchApp: React.FC<DeepResearchAppProps> = ({ user }) => {
             <div className="p-4 bg-cream-bg border-t border-gray-100 pb-8">
                 <div className="max-w-4xl mx-auto relative group">
                     <div className="absolute -inset-1 bg-gradient-to-r from-brand-blue to-brand-purple rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-                    <div className="relative flex items-center bg-gray-900 border border-gray-100 rounded-2xl p-2 shadow-2xl">
+                    <div className="relative flex items-center bg-white border border-gray-200 rounded-2xl p-2 shadow-lg">
                         <input
                             ref={inputRef}
                             type="text"

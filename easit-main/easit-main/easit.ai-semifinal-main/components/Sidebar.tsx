@@ -1,6 +1,7 @@
 
 import React from 'react';
 import type { Conversation } from '../types.ts';
+import { Link } from 'react-router-dom';
 import { MessageSquarePlus, MessageSquareText, X } from 'lucide-react';
 
 interface SidebarProps {
@@ -90,14 +91,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </nav>
         </div>
         <div className="mt-auto p-4 border-t border-gray-100 dark:border-gray-700/50 space-y-2">
-            <a href="/research" className="flex items-center gap-3 p-2 rounded-lg text-sm text-[#B8860B] hover:bg-[#F3E5AB]/20 transition-colors">
+            <Link to="/research" className="flex items-center gap-3 p-2 rounded-lg text-sm text-[#B8860B] hover:bg-[#F3E5AB]/20 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
                 Deep Research
-            </a>
-            <a href="/settings" className="flex items-center gap-3 p-2 rounded-lg text-sm text-gray-600 hover:text-text-dark hover:bg-white shadow-sm transition-colors">
+            </Link>
+            <Link to="/settings" className="flex items-center gap-3 p-2 rounded-lg text-sm text-gray-600 hover:text-text-dark hover:bg-white shadow-sm transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                 Settings
-            </a>
+            </Link>
         </div>
       </aside>
     </>

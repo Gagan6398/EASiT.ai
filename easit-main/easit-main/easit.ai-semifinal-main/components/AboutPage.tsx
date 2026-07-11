@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, Globe, Shield } from 'lucide-react';
 import { FooterAssistant } from './FooterAssistant.tsx';
 
 export const AboutPage: React.FC = () => {
     const navigate = useNavigate();
+
+    useEffect(() => { document.title = 'About — Easit.ai | AI Voice Assistant'; }, []);
 
     return (
         <div className="bg-cream-bg text-text-dark font-sans min-h-screen flex flex-col">
