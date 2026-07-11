@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Homepage -->
   <url>
-    <loc>https://easit-ai.netlify.app/</loc>
+    <loc>https://easitai-semifinal-main.vercel.app/</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -10,7 +10,7 @@
 
   <!-- About -->
   <url>
-    <loc>https://easit-ai.netlify.app/about</loc>
+    <loc>https://easitai-semifinal-main.vercel.app/about</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -18,7 +18,7 @@
 
   <!-- Features -->
   <url>
-    <loc>https://easit-ai.netlify.app/features</loc>
+    <loc>https://easitai-semifinal-main.vercel.app/features</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -26,7 +26,7 @@
 
   <!-- Pricing -->
   <url>
-    <loc>https://easit-ai.netlify.app/pricing</loc>
+    <loc>https://easitai-semifinal-main.vercel.app/pricing</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -34,7 +34,7 @@
 
   <!-- Legal Hub -->
   <url>
-    <loc>https://easit-ai.netlify.app/legal</loc>
+    <loc>https://easitai-semifinal-main.vercel.app/legal</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
@@ -42,7 +42,7 @@
 
   <!-- Sign In / Sign Up -->
   <url>
-    <loc>https://easit-ai.netlify.app/auth</loc>
+    <loc>https://easitai-semifinal-main.vercel.app/auth</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -50,7 +50,7 @@
 
   <!-- Terms of Service -->
   <url>
-    <loc>https://easit-ai.netlify.app/terms.html</loc>
+    <loc>https://easitai-semifinal-main.vercel.app/terms.html</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
@@ -58,7 +58,7 @@
 
   <!-- Privacy Policy -->
   <url>
-    <loc>https://easit-ai.netlify.app/privacy.html</loc>
+    <loc>https://easitai-semifinal-main.vercel.app/privacy.html</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>

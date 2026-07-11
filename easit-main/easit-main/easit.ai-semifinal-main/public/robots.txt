@@ -1,5 +1,5 @@
 # Easit.ai Robots.txt
-# https://easit-ai.netlify.app/
+# https://easitai-semifinal-main.vercel.app/
 
 User-agent: *
 Allow: /
@@ -11,7 +11,7 @@ Disallow: /research
 Disallow: /settings
 
 # Sitemaps
-Sitemap: https://easit-ai.netlify.app/sitemap.xml
+Sitemap: https://easitai-semifinal-main.vercel.app/sitemap.xml
 
 # Crawl-delay (optional, respected by some bots)
 User-agent: AhrefsBot
