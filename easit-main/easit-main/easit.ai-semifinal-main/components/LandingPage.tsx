@@ -19,8 +19,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                 </div>
                 <nav className="hidden md:flex items-center gap-8 font-medium text-sm text-gray-400">
                     <Link to="/features" className="hover:text-white transition-colors">Features</Link>
-                    <a href="#research" className="hover:text-white transition-colors">Research</a>
-                    <a href="#api" className="hover:text-white transition-colors">API</a>
+                    <button onClick={() => document.getElementById('research')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition-colors">Research</button>
+                    <button onClick={() => document.getElementById('api')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition-colors">API</button>
                     <Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link>
                 </nav>
                 <div className="flex items-center gap-4">
@@ -382,7 +382,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                         <div className="w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden shrink-0 border border-gray-700 shadow-2xl relative bg-gray-800">
                             <div className="absolute inset-0 bg-gradient-to-tr from-[#00F0FF]/20 to-transparent mix-blend-overlay"></div>
                             {/* Placeholder for founder image */}
-                            <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=400&q=80" alt="Gagan Chaudhary" className="w-full h-full object-cover" />
+                            <img src="/founder.jpg" alt="Gagan Chaudhary" className="w-full h-full object-cover" />
                         </div>
                         <div className="relative z-10">
                             <h3 className="text-2xl font-bold text-white">Gagan Chaudhary</h3>
