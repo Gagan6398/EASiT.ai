@@ -49,13 +49,23 @@ const App: React.FC = () => {
         };
         setUser(guestUser);
         setJwt("guest-demo-token");
-        navigate('/chat');
+        
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'easitai-semifinal-main.vercel.app') {
+            window.location.href = 'https://easitai-semifinal-main.vercel.app/chat';
+        } else {
+            navigate('/chat');
+        }
     };
 
     const handleLoginSuccess = (newUser: User, token: string) => {
         setUser(newUser);
         setJwt(token);
-        navigate('/chat');
+        
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'easitai-semifinal-main.vercel.app') {
+            window.location.href = 'https://easitai-semifinal-main.vercel.app/chat';
+        } else {
+            navigate('/chat');
+        }
     };
 
     return (
