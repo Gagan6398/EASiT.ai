@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Shield, Settings, Search, Play, ArrowRight, Zap, Code, LayoutDashboard, BrainCircuit, Waves, CheckCircle2, Mic, SlidersHorizontal, Lock, Terminal, Box, Link2 } from 'lucide-react';
 import { FooterAssistant } from './FooterAssistant.tsx';
 
@@ -10,6 +10,7 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSignup, onEnterAsGuest }) => {
+    const navigate = useNavigate();
     return (
         <div className="bg-[#0f1115] min-h-screen text-gray-200 font-sans selection:bg-[#00F0FF] selection:text-black flex flex-col items-center overflow-x-hidden">
             {/* Navbar */}
@@ -123,7 +124,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
                         {/* Generate */}
-                        <div className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-[#00F0FF]/30 transition-colors group">
+                        <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-[#00F0FF]/30 transition-colors group cursor-pointer">
                             <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6 text-blue-400 group-hover:scale-110 transition-transform">
                                 <Box size={24} />
                             </div>
@@ -132,7 +133,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                             <p className="text-sm text-gray-400">Initial source analysis and upward thinking mappings. Multiple baseline responses are generated simultaneously.</p>
                         </div>
                         {/* Critique */}
-                        <div className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-purple-500/30 transition-colors group">
+                        <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-purple-500/30 transition-colors group cursor-pointer">
                             <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-6 text-purple-400 group-hover:scale-110 transition-transform">
                                 <BrainCircuit size={24} />
                             </div>
@@ -141,7 +142,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                             <p className="text-sm text-gray-400">Adversarial models critique the generated baselines for logical fallacies, biases, and factual inconsistencies.</p>
                         </div>
                         {/* Ground */}
-                        <div className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-[#00F0FF]/30 transition-colors group">
+                        <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-[#00F0FF]/30 transition-colors group cursor-pointer">
                             <div className="w-12 h-12 rounded-xl bg-[#00F0FF]/10 flex items-center justify-center mb-6 text-[#00F0FF] group-hover:scale-110 transition-transform">
                                 <Link2 size={24} />
                             </div>
@@ -150,7 +151,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                             <p className="text-sm text-gray-400">Real-time verification against authoritative databases and active web indices to anchor claims in reality.</p>
                         </div>
                         {/* Output */}
-                        <div className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-green-500/30 transition-colors group">
+                        <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-green-500/30 transition-colors group cursor-pointer">
                             <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-6 text-green-400 group-hover:scale-110 transition-transform">
                                 <LayoutDashboard size={24} />
                             </div>
@@ -279,15 +280,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                             <div className="bg-[#12141a] border border-gray-800 rounded-2xl p-6 shadow-2xl">
                                 <div className="text-xs font-mono text-gray-500 mb-4 tracking-widest uppercase">Select Persona</div>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-                                    <div className="bg-[#1a1d24] border border-[#00F0FF]/50 rounded-xl p-4 text-center cursor-pointer shadow-[0_0_15px_rgba(0,240,255,0.1)]">
+                                    <div onClick={onOpenSignup} className="bg-[#1a1d24] border border-[#00F0FF]/50 rounded-xl p-4 text-center cursor-pointer shadow-[0_0_15px_rgba(0,240,255,0.1)]">
                                         <Code size={20} className="mx-auto mb-2 text-[#00F0FF]" />
                                         <div className="text-xs font-bold text-[#00F0FF]">Software<br className="hidden sm:block" /> Engineer</div>
                                     </div>
-                                    <div className="bg-[#1a1d24] border border-gray-800 hover:border-gray-600 rounded-xl p-4 text-center cursor-pointer transition-colors">
+                                    <div onClick={onOpenSignup} className="bg-[#1a1d24] border border-gray-800 hover:border-gray-600 rounded-xl p-4 text-center cursor-pointer transition-colors">
                                         <BrainCircuit size={20} className="mx-auto mb-2 text-gray-400" />
                                         <div className="text-xs font-bold text-gray-400">Academic<br className="hidden sm:block" /> Researcher</div>
                                     </div>
-                                    <div className="bg-[#1a1d24] border border-gray-800 hover:border-gray-600 rounded-xl p-4 text-center cursor-pointer transition-colors">
+                                    <div onClick={onOpenSignup} className="bg-[#1a1d24] border border-gray-800 hover:border-gray-600 rounded-xl p-4 text-center cursor-pointer transition-colors">
                                         <SlidersHorizontal size={20} className="mx-auto mb-2 text-gray-400" />
                                         <div className="text-xs font-bold text-gray-400">Standard</div>
                                     </div>
@@ -307,7 +308,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {/* Big Card */}
-                        <div className="md:col-span-2 bg-[#12141a] border border-gray-800 rounded-2xl p-8 relative overflow-hidden group hover:border-[#00F0FF]/30 transition-colors">
+                        <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="md:col-span-2 bg-[#12141a] border border-gray-800 rounded-2xl p-8 relative overflow-hidden group hover:border-[#00F0FF]/30 transition-colors cursor-pointer">
                             <div className="relative z-10">
                                 <Link2 size={24} className="text-[#00F0FF] mb-6" />
                                 <h3 className="text-2xl font-bold text-white mb-4">Hallucination-Free Reliability</h3>
@@ -329,12 +330,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
 
                         {/* Stacked Small Cards */}
                         <div className="flex flex-col gap-6">
-                            <div className="bg-[#12141a] border border-gray-800 rounded-2xl p-6 hover:border-purple-500/30 transition-colors">
+                            <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="bg-[#12141a] border border-gray-800 rounded-2xl p-6 hover:border-purple-500/30 transition-colors cursor-pointer">
                                 <Search size={24} className="text-purple-400 mb-4" />
                                 <h3 className="text-lg font-bold text-white mb-2">Deep Research Mode</h3>
                                 <p className="text-xs text-gray-500">A groundbreaking reasoning algorithm that enables custom-tailored synthesis to interrelate a cross-domain of sources, building comprehensive and robust reports autonomously.</p>
                             </div>
-                            <div className="bg-[#12141a] border border-gray-800 rounded-2xl p-6 hover:border-[#00F0FF]/30 transition-colors">
+                            <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="bg-[#12141a] border border-gray-800 rounded-2xl p-6 hover:border-[#00F0FF]/30 transition-colors cursor-pointer">
                                 <Settings size={24} className="text-[#00F0FF] mb-4" />
                                 <h3 className="text-lg font-bold text-white mb-2">Persona Customization</h3>
                                 <p className="text-xs text-gray-500">Adapt the AI's tone, verbosity, and expertise level. From strict academic rigor to concise developer assistance, exactly the exact assistance you need at your command.</p>
