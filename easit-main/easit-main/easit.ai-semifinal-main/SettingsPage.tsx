@@ -47,28 +47,33 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ user, onSignOut }) =
                     </button>
                 </section>
 
-                {/* Functional Accessibilities */}
+                {/* AI Services & Apps */}
                 <section className="bg-white shadow-sm border border-gray-100 rounded-2xl p-6">
                     <h2 className="text-xl font-semibold mb-6 flex items-center gap-2 text-[#B8860B]">
-                        <SettingsIcon size={20} /> Functional Preferences
+                        <SettingsIcon size={20} /> AI Services
                     </h2>
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
-                            <div>
-                                <h3 className="font-medium text-text-dark">Persona Configuration</h3>
-                                <p className="text-xs text-gray-500">Configure AI tone, style, and verbosity in the Chat UI.</p>
+                        {/* Engaging Chatbot Launcher */}
+                        <div className="relative overflow-hidden p-6 bg-gradient-to-br from-[#1E293B] to-[#0F172A] rounded-xl border border-gray-800 flex flex-col md:flex-row items-center justify-between group cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-xl" onClick={() => navigate('/chat')}>
+                            <div className="absolute inset-0 bg-gold-gradient opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
+                            <div className="z-10 flex-1 mb-4 md:mb-0">
+                                <h3 className="text-2xl font-serif font-bold text-white mb-2 group-hover:text-[#D4AF37] transition-colors">Launch Easit Voice AI</h3>
+                                <p className="text-sm text-gray-400 max-w-md">Access your primary Hallucination-Free AI Assistant. Engage in voice or text conversations backed by verified real-time sources.</p>
                             </div>
-                            <button onClick={() => navigate('/chat')} className="px-4 py-2 bg-[#F3E5AB]/40 text-[#B8860B] text-sm font-medium rounded-lg hover:bg-brand-purple/30">
-                                Configure
-                            </button>
+                            <div className="z-10">
+                                <button className="bg-gold-gradient text-white px-8 py-3 rounded-lg font-serif font-bold shadow-lg group-hover:shadow-gold-light/50 transition-all flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
+                                    Open Chat
+                                </button>
+                            </div>
                         </div>
                         
                         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
                             <div>
-                                <h3 className="font-medium text-text-dark">Deep Research Mode</h3>
-                                <p className="text-xs text-gray-500">Access the G-C-G-O Consensus Architecture.</p>
+                                <h3 className="font-medium text-text-dark">Deep Research Engine</h3>
+                                <p className="text-xs text-gray-500">Access the G-C-G-O Consensus Architecture for heavy research.</p>
                             </div>
-                            <button onClick={() => navigate('/research')} className="px-4 py-2 bg-gold-light/40 text-[#CFA54D] text-sm font-medium rounded-lg hover:bg-gold-gradient/30">
+                            <button onClick={() => navigate('/research')} className="px-4 py-2 bg-gold-light/40 text-[#CFA54D] text-sm font-medium rounded-lg hover:bg-gold-gradient/30 transition-colors">
                                 Open Engine
                             </button>
                         </div>

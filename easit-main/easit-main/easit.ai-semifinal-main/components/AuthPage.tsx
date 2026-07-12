@@ -7,6 +7,7 @@ import apiService from '../services/apiService';
 interface AuthPageProps {
   onLoginSuccess: (user: AppUser, token: string) => void;
   onGoBack: () => void;
+  initialMode?: 'login' | 'signup';
 }
 
 const logoUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgdmlld0JveD0iMCAwIDUwMCA1MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjI1MCIgY3k9IjI1MCIgcj0iMTcwIiBzdHJva2U9InVybCgjZ3JhZDEpIiBzdHJva2Utd2lkdGg9IjEyIi8+CjxjaXJjbGUgY3g9IjI1MCIgY3k9IjE2MCIgcj0iMzUiIGZpbGw9IiM4QjVDRjYiLz4KPGNpcmNsZSBjeD0iMTcwIiBjeT0iMzAwIiByPSIzNSIgZmlsbD0iIzNCODJGNiIvPgo8Y2lyY2xlIGN4PSIzMzAiIGN5PSIzMDAiIHI9IjM1IiBmaWxsPSIjMDBGMEY2Ii8+CjxsaW5lIHgxPSIyNTAiIHkxPSIxNjAiIHgyPSIxNzAiIHkyPSIzMDAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjMiIHN0cm9rZS13aWR0aD0iMyIvPgo8bGluZSB4MT0iMjUwIiB5MT0iMTYwIiB4Mj0iMzMwIiB5Mj0iMzAwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utb3BhY2l0eT0iMC4zIiBzdHJva2Utd2lkdGg9IjMiLz4KPGxpbmUgeDE9IjE3MCIgeTE9IjMwMCIgeDI9IjMzMCIgeTI9IjMwMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMyIgc3Ryb2tlLXdpZHRoPSIzIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQxIiB4MT0iODAiIHkxPSI4MCIgeDI9IjQyMCIgeTI9IjQyMCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjOEI1Q0Y2Ii8+CjxzdG9wIG9mZnNldD0iMC41IiBzdG9wLWNvbG9yPSIjM0I4MkY2Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwRjBGRiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPg==';
@@ -22,10 +23,22 @@ function decodeGoogleJwt(credential: string): AppUser | null {
         if (parts.length !== 3) return null;
 
         // base64url → base64 → decode
-        const payload = parts[1]
+        let payload = parts[1]
             .replace(/-/g, '+')
             .replace(/_/g, '/');
-        const decoded = JSON.parse(atob(payload));
+        
+        const pad = payload.length % 4;
+        if (pad) {
+            payload += '='.repeat(4 - pad);
+        }
+        
+        const base64Str = atob(payload);
+        const bytes = new Uint8Array(base64Str.length);
+        for (let i = 0; i < base64Str.length; i++) {
+            bytes[i] = base64Str.charCodeAt(i);
+        }
+        const decodedString = new TextDecoder('utf-8').decode(bytes);
+        const decoded = JSON.parse(decodedString);
 
         return {
             name: decoded.name || decoded.given_name || 'Google User',
@@ -38,10 +51,10 @@ function decodeGoogleJwt(credential: string): AppUser | null {
     }
 }
 
-export const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess, onGoBack }) => {
+export const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess, onGoBack, initialMode = 'login' }) => {
     const googleButtonRef = useRef<HTMLDivElement>(null);
     
-    const [mode, setMode] = useState<'login' | 'signup'>('login');
+    const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [googleLoading, setGoogleLoading] = useState(true);
@@ -95,7 +108,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess, onGoBack }) 
         const buttonEl = googleButtonRef.current;
         if (!buttonEl) return;
 
-        const GOOGLE_CLIENT_ID = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || '';
+        const GOOGLE_CLIENT_ID = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || '961144104930-kqcjt7navga41di2ulnsugstr5r55uqt.apps.googleusercontent.com';
         if (!GOOGLE_CLIENT_ID) {
             setGoogleLoading(false);
             setGoogleError(true);
@@ -181,8 +194,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess, onGoBack }) 
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-cream-bg bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,130,246,0.15),rgba(255,255,255,0))]">
-            <div className="relative w-full max-w-md p-8 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center min-h-screen bg-cream-bg/95 backdrop-blur-sm bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,130,246,0.15),rgba(255,255,255,0))] overflow-y-auto">
+            <div className="relative w-full max-w-md p-8 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 m-4">
                 <button 
                     onClick={onGoBack} 
                     className="absolute top-4 left-4 p-2 text-gray-600 hover:text-text-dark transition-colors"

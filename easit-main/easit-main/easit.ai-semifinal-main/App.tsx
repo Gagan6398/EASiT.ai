@@ -17,6 +17,8 @@ import { websocketService } from './services/websocketService.ts';
 const App: React.FC = () => {
     const [user, setUser] = useLocalStorage<User | null>('easit-user', null);
     const [jwt, setJwt] = useLocalStorage<string | null>('easit-jwt', null);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
     const navigate = useNavigate();
     
     useTheme();
@@ -61,7 +63,22 @@ const App: React.FC = () => {
             <Route 
                 path="/" 
                 element={
-                    user ? <Navigate to="/chat" replace /> : <LandingPage onGetStarted={() => navigate('/auth')} onEnterAsGuest={handleGuestLogin} />
+                    user ? <Navigate to="/chat" replace /> : (
+                        <>
+                            <LandingPage 
+                                onOpenLogin={() => { setAuthModalMode('login'); setIsAuthModalOpen(true); }} 
+                                onOpenSignup={() => { setAuthModalMode('signup'); setIsAuthModalOpen(true); }} 
+                                onEnterAsGuest={handleGuestLogin} 
+                            />
+                            {isAuthModalOpen && (
+                                <AuthPage 
+                                    initialMode={authModalMode}
+                                    onLoginSuccess={(u, t) => { setIsAuthModalOpen(false); handleLoginSuccess(u, t); }} 
+                                    onGoBack={() => setIsAuthModalOpen(false)} 
+                                />
+                            )}
+                        </>
+                    )
                 } 
             />
             <Route path="/about" element={<AboutPage />} />
