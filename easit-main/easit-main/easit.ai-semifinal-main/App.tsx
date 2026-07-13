@@ -71,9 +71,7 @@ const App: React.FC = () => {
 
                 // Don't auto navigate to /chat if we're just refreshing tokens
                 if (event === 'SIGNED_IN') {
-                    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'easitai-semifinal-main.vercel.app') {
-                        window.location.href = 'https://easitai-semifinal-main.vercel.app/chat';
-                    } else if (window.location.pathname === '/') {
+                    if (window.location.pathname === '/' || window.location.pathname === '/auth') {
                         navigate('/chat');
                     }
                 }
@@ -119,11 +117,7 @@ const App: React.FC = () => {
         
         posthog.capture('guest_login');
         
-        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'easitai-semifinal-main.vercel.app') {
-            window.location.href = 'https://easitai-semifinal-main.vercel.app/chat';
-        } else {
-            navigate('/chat');
-        }
+        navigate('/chat');
     };
 
     const handleLoginSuccess = (newUser: User, token: string) => {
@@ -135,11 +129,7 @@ const App: React.FC = () => {
             name: newUser.name
         });
         
-        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'easitai-semifinal-main.vercel.app') {
-            window.location.href = 'https://easitai-semifinal-main.vercel.app/chat';
-        } else {
-            navigate('/chat');
-        }
+        navigate('/chat');
     };
 
     return (
