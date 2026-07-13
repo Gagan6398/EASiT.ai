@@ -21,7 +21,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                 <nav className="hidden md:flex items-center gap-8 font-medium text-sm text-gray-400">
                     <Link to="/features" className="hover:text-white transition-colors">Features</Link>
                     <button onClick={() => document.getElementById('research')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition-colors">Research</button>
-                    <button onClick={() => document.getElementById('api')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition-colors">API</button>
+                    <button onClick={onOpenSignup} className="hover:text-white transition-colors">API</button>
                     <Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link>
                 </nav>
                 <div className="flex items-center gap-4">
@@ -343,7 +343,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                         </div>
 
                         {/* Wide Card Code Snippet */}
-                        <div className="md:col-span-3 bg-[#12141a] border border-gray-800 rounded-2xl p-0 overflow-hidden flex flex-col md:flex-row mt-6">
+                        <div onClick={onOpenSignup} className="md:col-span-3 bg-[#12141a] border border-gray-800 rounded-2xl p-0 overflow-hidden flex flex-col md:flex-row mt-6 cursor-pointer hover:border-[#00F0FF]/30 transition-colors">
                             <div className="p-8 md:w-1/3 flex flex-col justify-center">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-xs font-mono font-medium mb-4 w-fit">
                                     <Terminal size={14} /> Live Verification APIs
@@ -412,7 +412,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                         <h4 className="text-white font-bold mb-4">Product</h4>
                         <ul className="space-y-2 text-sm text-gray-400">
                             <li><Link to="/features" className="hover:text-[#00F0FF] transition-colors">Features</Link></li>
-                            <li><Link to="/features" className="hover:text-[#00F0FF] transition-colors">API</Link></li>
+                            <li><button onClick={onOpenSignup} className="hover:text-[#00F0FF] transition-colors">API</button></li>
                         </ul>
                     </div>
                     <div>

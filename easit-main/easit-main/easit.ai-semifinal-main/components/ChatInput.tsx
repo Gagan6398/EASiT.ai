@@ -116,9 +116,30 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   }, [status, startSession, stopSession, onSendVoiceMessage, systemInstruction]);
 
   const applyPreset = (preset: string) => {
-      let finalPrompt = inputText.trim();
-      if (!finalPrompt) return;
+      const currentText = inputText.trim();
+      
+      if (!currentText) {
+          switch(preset) {
+              case 'summarize':
+                  setInputText('Please provide a concise summary of the following:\n\n');
+                  break;
+              case 'explain':
+                  setInputText('Explain this in simple terms that even a non-expert could understand:\n\n');
+                  break;
+              case 'research':
+                  setIsSearchActive(true);
+                  setQueryMode('consensus');
+                  setInputText('Perform deep research on this topic using Google Search and provide a detailed verified report with the full G-C-G-O consensus analysis:\n\n');
+                  break;
+              case 'verify':
+                  setIsSearchActive(true);
+                  setInputText('Verify the following claim for accuracy and potential hallucinations using all available tools. Cross-reference with multiple sources:\n\n');
+                  break;
+          }
+          return;
+      }
 
+      let finalPrompt = currentText;
       switch(preset) {
           case 'summarize':
               finalPrompt = `Please provide a concise summary of the following:\n\n${finalPrompt}`;
@@ -214,32 +235,28 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             {/* Presets */}
             <button
                 onClick={() => applyPreset('research')}
-                disabled={!inputText.trim()}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase bg-white shadow-sm text-gray-600 border border-gray-100 hover:border-brand-purple/50 hover:text-[#B8860B] disabled:opacity-30 whitespace-nowrap transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase bg-white shadow-sm text-gray-600 border border-gray-100 hover:border-brand-purple/50 hover:text-[#B8860B] whitespace-nowrap transition-all"
             >
                 <BookOpen size={13} />
                 Deep Research
             </button>
             <button
                 onClick={() => applyPreset('verify')}
-                disabled={!inputText.trim()}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase bg-white shadow-sm text-gray-600 border border-gray-100 hover:border-[#CFA54D]/50 hover:text-[#CFA54D] disabled:opacity-30 whitespace-nowrap transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase bg-white shadow-sm text-gray-600 border border-gray-100 hover:border-[#CFA54D]/50 hover:text-[#CFA54D] whitespace-nowrap transition-all"
             >
                 <ShieldCheck size={13} />
                 Hallucination Check
             </button>
             <button
                 onClick={() => applyPreset('summarize')}
-                disabled={!inputText.trim()}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase bg-white shadow-sm text-gray-600 border border-gray-100 hover:border-orange-500/50 hover:text-orange-500 disabled:opacity-30 whitespace-nowrap transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase bg-white shadow-sm text-gray-600 border border-gray-100 hover:border-orange-500/50 hover:text-orange-500 whitespace-nowrap transition-all"
             >
                 <Scissors size={13} />
                 Summarize
             </button>
             <button
                 onClick={() => applyPreset('explain')}
-                disabled={!inputText.trim()}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase bg-white shadow-sm text-gray-600 border border-gray-100 hover:border-green-500/50 hover:text-green-500 disabled:opacity-30 whitespace-nowrap transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase bg-white shadow-sm text-gray-600 border border-gray-100 hover:border-green-500/50 hover:text-green-500 whitespace-nowrap transition-all"
             >
                 <HelpCircle size={13} />
                 Explain Simply

@@ -9,7 +9,6 @@ import type { Conversation, Message, User, PersonaSettings, ConnectionStatus, So
 import { useLocalStorage } from './hooks/useLocalStorage.ts';
 import { WelcomeScreen } from './components/WelcomeScreen.tsx';
 import apiService from './services/apiService.ts';
-import { websocketService } from './services/websocketService.ts';
 import { 
   buildSystemInstruction, 
   generateWithConsensus, 
@@ -45,7 +44,6 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
-  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
   
   // Abort controller for cancelling in-flight requests
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -67,17 +65,6 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
   const systemInstruction = useMemo(() => {
     return buildSystemInstruction(personaSettings, queryMode);
   }, [personaSettings, queryMode]);
-
-  useEffect(() => {
-      const handleStatusChange = (status: ConnectionStatus) => {
-          setConnectionStatus(status);
-      };
-
-      websocketService.addStatusListener(handleStatusChange);
-      return () => {
-          websocketService.removeStatusListener(handleStatusChange);
-      };
-  }, []);
 
   // Handle Stripe Success Redirect
   useEffect(() => {
@@ -126,30 +113,6 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
     };
   }, []);
 
-  const handleAiMessage = useCallback((data: any) => {
-    if (data.type === 'aiMessage') {
-        const { conversationId, message } = data.payload;
-        setConversations(prev => {
-            return prev.map(c => {
-                if (c.id === conversationId) {
-                    return { ...c, messages: [...c.messages, message] };
-                }
-                return c;
-            });
-        });
-    } else if (data.type === 'error') {
-        addToast(data.payload.message || 'An error occurred', 'error');
-    }
-  }, [addToast]);
-
-  useEffect(() => {
-      websocketService.addMessageListener(handleAiMessage);
-      return () => {
-          websocketService.removeMessageListener(handleAiMessage);
-      };
-  }, [handleAiMessage]);
-
-
   const activeConversation = useMemo(() => {
     return conversations.find(c => c.id === activeConversationId) || null;
   }, [conversations, activeConversationId]);
@@ -181,10 +144,7 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
         return c;
     }));
 
-    const token = localStorage.getItem('easit-jwt');
-    const isGuest = token && token.includes('guest-demo-token');
-
-    if (isGuest && message.role === 'user') {
+    if (message.role === 'user') {
         // Cancel any in-flight request
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
@@ -357,17 +317,6 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
               return c;
             }));
         }
-    } else if (!isGuest) {
-        try {
-            websocketService.sendMessage('chatMessage', { 
-                conversationId, 
-                userMessage: message, 
-                systemInstruction,
-                searchEnabled: isSearchActive 
-            });
-        } catch (e: any) {
-             addToast("Connection error: Message not sent.", 'error');
-        }
     }
   }, [systemInstruction, addToast, isSearchActive, queryMode, personaSettings]);
 
@@ -498,7 +447,7 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
           onShowSettings={() => setSettingsModalVisible(true)} 
           onSaveConversation={handleSaveConversation} 
           conversationTitle={activeConversation?.title} 
-          connectionStatus={connectionStatus} 
+          connectionStatus={'connected'} 
         />
         <div className="flex-1 overflow-hidden">{renderContent()}</div>
       </main>

@@ -81,29 +81,7 @@ const UserMenu: React.FC<{ user: User; onSignOut: () => void; onShowModal: (moda
     );
 };
 
-const ConnectionBadge: React.FC<{ status: ConnectionStatus }> = ({ status }) => {
-    if (status === 'connected') return null;
 
-    if (status === 'reconnecting') {
-        return (
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs rounded-full animate-pulse">
-                <RefreshCw size={12} className="animate-spin" />
-                <span className="hidden md:inline">Reconnecting...</span>
-            </div>
-        );
-    }
-
-    if (status === 'disconnected') {
-        return (
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs rounded-full">
-                <WifiOff size={12} />
-                <span className="hidden md:inline">Offline</span>
-            </div>
-        );
-    }
-    
-    return null;
-};
 
 
 export const TopBar: React.FC<TopBarProps> = ({ user, onSignOut, onToggleSidebar, onNewConversation, onShowModal, conversationTitle, onShowSettings, onSaveConversation, connectionStatus }) => {
@@ -120,7 +98,6 @@ export const TopBar: React.FC<TopBarProps> = ({ user, onSignOut, onToggleSidebar
           <PanelLeft size={20} />
         </button>
         <h2 className="text-lg font-semibold truncate max-w-[calc(100%-4rem)] md:max-w-xs">{conversationTitle || 'Easit.ai'}</h2>
-        <ConnectionBadge status={connectionStatus} />
       </div>
       <div className="flex items-center gap-3">
         <button
