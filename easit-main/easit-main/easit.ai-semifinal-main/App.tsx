@@ -13,6 +13,7 @@ import { useTheme } from './hooks/useTheme.ts';
 import { useLocalStorage } from './hooks/useLocalStorage.ts';
 import type { User } from './types.ts';
 import { websocketService } from './services/websocketService.ts';
+import { supabase } from './services/supabaseClient.ts';
 
 const App: React.FC = () => {
     const [user, setUser] = useLocalStorage<User | null>('easit-user', null);
@@ -22,6 +23,36 @@ const App: React.FC = () => {
     const navigate = useNavigate();
     
     useTheme();
+
+    useEffect(() => {
+        // Listen to Supabase Auth State Changes (e.g. after Google OAuth redirect)
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+            if (session?.user) {
+                const newUser: User = {
+                    name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                    email: session.user.email || '',
+                    picture: session.user.user_metadata?.avatar_url
+                };
+                setUser(newUser);
+                setJwt(session.access_token);
+                // Don't auto navigate to /chat if we're just refreshing tokens
+                if (event === 'SIGNED_IN') {
+                    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'easitai-semifinal-main.vercel.app') {
+                        window.location.href = 'https://easitai-semifinal-main.vercel.app/chat';
+                    } else if (window.location.pathname === '/') {
+                        navigate('/chat');
+                    }
+                }
+            } else if (event === 'SIGNED_OUT') {
+                setUser(null);
+                setJwt(null);
+            }
+        });
+        
+        return () => {
+            authListener.subscription.unsubscribe();
+        };
+    }, []);
 
     useEffect(() => {
         if (jwt && jwt !== 'guest-demo-token') {
@@ -35,7 +66,8 @@ const App: React.FC = () => {
         };
     }, [jwt]);
 
-    const handleSignOut = () => {
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
         setUser(null);
         setJwt(null);
         navigate('/');

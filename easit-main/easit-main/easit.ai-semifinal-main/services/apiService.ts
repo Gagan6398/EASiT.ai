@@ -1,119 +1,107 @@
 import type { User, Conversation } from '../types.ts';
-
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const API_BASE_URL = isLocal ? 'http://localhost:8000/api' : `${window.location.protocol}//${window.location.host}/api`;
-
-const getAuthToken = (): string | null => {
-    try {
-        const item = localStorage.getItem('easit-jwt');
-        return item ? JSON.parse(item) : null;
-    } catch (e) {
-        return null;
-    }
-};
-
-const handleResponse = async (response: Response) => {
-    if (!response.ok) {
-        let errorMessage = `Request failed with status ${response.status}`;
-        try {
-            const errorData = await response.json();
-            if (errorData && errorData.detail) {
-                errorMessage = errorData.detail;
-            } else if (errorData && errorData.message) {
-                 errorMessage = errorData.message;
-            }
-        } catch (e) {}
-        throw new Error(errorMessage);
-    }
-    return response.json();
-};
-
-/**
- * Wrapper around fetch that handles backend-unavailable gracefully.
- * For auth endpoints: throws the error (no more silent guest fallback).
- * For conversations: returns empty/offline data when backend is down.
- */
-const safeFetch = async (url: string, options: RequestInit) => {
-    try {
-        const response = await fetch(url, options);
-        return await handleResponse(response);
-    } catch (error: any) {
-        // Auth endpoints: propagate the error so callers can handle it
-        // (e.g., AuthPage falls back to client-side JWT decode)
-        if (url.includes('/auth/login') || url.includes('/auth/signup')) {
-            throw new Error(error.message || 'Cannot connect to server. Please try again.');
-        }
-
-        // Google auth: return a marker so the caller knows to fall back
-        if (url.includes('/auth/google')) {
-            return {
-                token: 'client-side-google-token',
-                user: {
-                    name: 'Google User',
-                    email: 'guest@solveearn.com',
-                    picture: undefined
-                }
-            };
-        }
-
-        // Conversations: return offline data
-        if (url.includes('/conversations')) {
-            return [
-                 {
-                     id: 'offline-conv-1',
-                     title: 'Welcome (Offline Mode)',
-                     messages: [
-                         {
-                             id: 'msg-1',
-                             role: 'model',
-                             text: 'The backend server is unreachable. You are currently in offline mode.\n\nYou can still chat with me using the Gemini API directly!',
-                             timestamp: new Date().toISOString()
-                         }
-                     ],
-                     createdAt: new Date().toISOString()
-                 }
-            ];
-        }
-        throw new Error('Cannot connect to server.');
-    }
-};
+import { supabase } from './supabaseClient.ts';
 
 const apiService = {
-    async googleAuth(credential: string): Promise<{ token: string; user: User }> {
-        return safeFetch(`${API_BASE_URL}/auth/google`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ credential }),
+    async googleAuth(): Promise<{ token: string; user: User }> {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + '/chat'
+            }
         });
+        if (error) throw error;
+        // OAuth redirect happens automatically, so this is just a placeholder return
+        return { token: 'oauth-pending', user: { name: 'Pending', email: 'pending' } };
     },
+    
     async login(email: string, password: string): Promise<{ token: string; user: User }> {
-        return safeFetch(`${API_BASE_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-        });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw new Error(error.message);
+        
+        return {
+            token: data.session?.access_token || '',
+            user: {
+                name: data.user?.user_metadata?.name || 'User',
+                email: data.user?.email || '',
+            }
+        };
     },
+    
     async signup(name: string, email: string, password: string): Promise<{ token: string; user: User }> {
-        return safeFetch(`${API_BASE_URL}/auth/signup`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password }),
+        const { data, error } = await supabase.auth.signUp({ 
+            email, 
+            password,
+            options: {
+                data: { name }
+            }
         });
+        if (error) throw new Error(error.message);
+        
+        return {
+            token: data.session?.access_token || '',
+            user: {
+                name,
+                email: data.user?.email || '',
+            }
+        };
     },
+    
     async getConversations(): Promise<Conversation[]> {
-        const token = getAuthToken();
-        if (!token) return [];
-        if (token === 'guest-demo-token') {
+        const { data: session } = await supabase.auth.getSession();
+        if (!session.session) {
+             // Fallback for guest mode
              try {
                  const localData = localStorage.getItem('easit-guest-conversations');
                  if (localData) return JSON.parse(localData);
              } catch (e) {}
              return [];
         }
-        return safeFetch(`${API_BASE_URL}/conversations`, {
-            headers: { 'Authorization': `Bearer ${token}` },
-        });
+
+        const { data, error } = await supabase
+            .from('conversations')
+            .select('*')
+            .order('created_at', { ascending: false });
+            
+        if (error) throw new Error('Failed to load conversations: ' + error.message);
+        
+        return data.map((row: any) => ({
+            id: row.id,
+            title: row.title,
+            messages: row.messages,
+            createdAt: row.created_at
+        }));
     },
+    
+    async saveConversation(conversation: Conversation): Promise<void> {
+        const { data: session } = await supabase.auth.getSession();
+        if (!session.session) {
+            // Guest mode
+            const localData = localStorage.getItem('easit-guest-conversations');
+            if (localData) {
+                try {
+                    let convs: Conversation[] = JSON.parse(localData);
+                    const index = convs.findIndex(c => c.id === conversation.id);
+                    if (index >= 0) convs[index] = conversation;
+                    else convs.unshift(conversation);
+                    localStorage.setItem('easit-guest-conversations', JSON.stringify(convs));
+                } catch(e) {}
+            }
+            return;
+        }
+
+        // Supabase mode
+        const { error } = await supabase
+            .from('conversations')
+            .upsert({
+                id: conversation.id.startsWith('conv-') ? undefined : conversation.id, // Supabase generates UUIDs
+                user_id: session.session.user.id,
+                title: conversation.title,
+                messages: conversation.messages,
+                created_at: conversation.createdAt
+            });
+            
+        if (error) console.error("Failed to save conversation to cloud", error);
+    }
 };
 
 export default apiService;

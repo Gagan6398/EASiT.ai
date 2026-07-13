@@ -292,12 +292,15 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
 
             setConversations(prev => prev.map(c => {
               if (c.id === conversationId) {
-                return {
+                const updatedConv = {
                   ...c,
                   messages: c.messages.map(m =>
                     m.id === streamingMsgId ? finalMessage : m
                   ),
                 };
+                // Fire and forget save to cloud
+                apiService.saveConversation(updatedConv);
+                return updatedConv;
               }
               return c;
             }));
@@ -308,9 +311,14 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
             // Auto-generate title on first user message
             if (history.length === 0) {
               generateTitle(message.text).then(title => {
-                setConversations(prev => prev.map(c =>
-                  c.id === conversationId ? { ...c, title } : c
-                ));
+                setConversations(prev => prev.map(c => {
+                  if (c.id === conversationId) {
+                    const updatedConv = { ...c, title };
+                    apiService.saveConversation(updatedConv);
+                    return updatedConv;
+                  }
+                  return c;
+                }));
               });
             }
 
