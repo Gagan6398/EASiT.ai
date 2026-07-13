@@ -4,10 +4,14 @@ import { supabase } from './supabaseClient.ts';
 
 const apiService = {
     async googleAuth(): Promise<{ token: string; user: User }> {
+        // Always redirect to production URL — this is the one whitelisted in Google Cloud Console
+        const productionUrl = 'https://easitai-semifinal-main.vercel.app';
+        const redirectUrl = productionUrl + '/chat';
+        
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: window.location.origin + '/chat'
+                redirectTo: redirectUrl
             }
         });
         if (error) throw error;
@@ -22,8 +26,9 @@ const apiService = {
         return {
             token: data.session?.access_token || '',
             user: {
-                name: data.user?.user_metadata?.name || 'User',
+                name: data.user?.user_metadata?.name || data.user?.user_metadata?.full_name || data.user?.email?.split('@')[0] || 'User',
                 email: data.user?.email || '',
+                picture: data.user?.user_metadata?.avatar_url || data.user?.user_metadata?.picture
             }
         };
     },

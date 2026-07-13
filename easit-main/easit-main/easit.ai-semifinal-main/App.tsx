@@ -26,9 +26,10 @@ const App: React.FC = () => {
     useTheme();
 
     useEffect(() => {
-        // Sync initial session
+        // 1. Sync initial session on page load
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session?.user) {
+                // A real Supabase session exists — ALWAYS override any local state (including guest)
                 const newUser: User = {
                     name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
                     email: session.user.email || '',
@@ -43,14 +44,11 @@ const App: React.FC = () => {
                         name: newUser.name
                     });
                 }
-            } else if (user?.email !== 'guest@solveearn.com') {
-                // If no session and not a guest, clear the invalid user state
-                setUser(null);
-                setJwt(null);
             }
+            // If no session, leave current local state as-is (could be guest or null)
         });
 
-        // Listen to Supabase Auth State Changes (e.g. after Google OAuth redirect)
+        // 2. Listen to auth state changes (Google OAuth redirect, email login, sign out)
         const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
             if (session?.user) {
                 const newUser: User = {
@@ -61,7 +59,6 @@ const App: React.FC = () => {
                 setUser(newUser);
                 setJwt(session.access_token);
                 
-                // Identify the user in PostHog
                 if (session.user.email) {
                     posthog.identify(session.user.id, {
                         email: session.user.email,
@@ -69,16 +66,15 @@ const App: React.FC = () => {
                     });
                 }
 
-                // Don't auto navigate to /chat if we're just refreshing tokens
+                // Navigate to chat after a fresh sign-in
                 if (event === 'SIGNED_IN') {
-                    if (window.location.pathname === '/' || window.location.pathname === '/auth') {
-                        navigate('/chat');
-                    }
+                    navigate('/chat');
                 }
             } else if (event === 'SIGNED_OUT') {
                 setUser(null);
                 setJwt(null);
                 posthog.reset();
+                navigate('/');
             }
         });
         
