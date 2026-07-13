@@ -2,9 +2,20 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Clock } from 'lucide-react';
 import { FooterAssistant } from './FooterAssistant.tsx';
+import { useLocalStorage } from '../hooks/useLocalStorage.ts';
+import type { User } from '../types.ts';
 
 export const PricingPage: React.FC = () => {
     const navigate = useNavigate();
+    const [user] = useLocalStorage<User | null>('easit-user', null);
+
+    const handleProUpgrade = () => {
+        let stripeUrl = 'https://buy.stripe.com/test_00waEYd4Gaye6thgUMasg00';
+        if (user && user.email && user.email !== 'guest@solveearn.com') {
+            stripeUrl += `?prefilled_email=${encodeURIComponent(user.email)}`;
+        }
+        window.location.href = stripeUrl;
+    };
 
     return (
         <div className="bg-[#0f1115] text-gray-200 font-sans min-h-screen flex flex-col selection:bg-[#00F0FF] selection:text-black">
@@ -26,7 +37,6 @@ export const PricingPage: React.FC = () => {
                     <PricingCard 
                         title="Free User" 
                         price="$0"
-                        highlight 
                         buttonText="Get Started"
                         features={["25 Verified Searches/day", "Unlimited standard voice", "History syncing", "All persona settings", "Community support"]}
                         onSelect={() => navigate('/auth')}
@@ -35,10 +45,10 @@ export const PricingPage: React.FC = () => {
                         title="Pro Account" 
                         price="$20"
                         priceInINR={1999}
-                        buttonText="Coming Soon"
-                        comingSoon
+                        buttonText="Upgrade to Pro"
+                        highlight
                         features={["Unlimited Verified Searches", "Priority server access", "Custom persona templates", "API Access (Early)", "Direct support"]}
-                        onSelect={() => {}}
+                        onSelect={handleProUpgrade}
                     />
                 </div>
             </main>

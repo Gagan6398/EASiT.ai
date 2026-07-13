@@ -14,6 +14,7 @@ import { useLocalStorage } from './hooks/useLocalStorage.ts';
 import type { User } from './types.ts';
 import { websocketService } from './services/websocketService.ts';
 import { supabase } from './services/supabaseClient.ts';
+import posthog from './services/posthog.ts';
 
 const App: React.FC = () => {
     const [user, setUser] = useLocalStorage<User | null>('easit-user', null);
@@ -25,16 +26,49 @@ const App: React.FC = () => {
     useTheme();
 
     useEffect(() => {
+        // Sync initial session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) {
+                const newUser: User = {
+                    name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+                    email: session.user.email || '',
+                    picture: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture
+                };
+                setUser(newUser);
+                setJwt(session.access_token);
+                
+                if (session.user.email) {
+                    posthog.identify(session.user.id, {
+                        email: session.user.email,
+                        name: newUser.name
+                    });
+                }
+            } else if (user?.email !== 'guest@solveearn.com') {
+                // If no session and not a guest, clear the invalid user state
+                setUser(null);
+                setJwt(null);
+            }
+        });
+
         // Listen to Supabase Auth State Changes (e.g. after Google OAuth redirect)
         const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
             if (session?.user) {
                 const newUser: User = {
-                    name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                    name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
                     email: session.user.email || '',
-                    picture: session.user.user_metadata?.avatar_url
+                    picture: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture
                 };
                 setUser(newUser);
                 setJwt(session.access_token);
+                
+                // Identify the user in PostHog
+                if (session.user.email) {
+                    posthog.identify(session.user.id, {
+                        email: session.user.email,
+                        name: newUser.name
+                    });
+                }
+
                 // Don't auto navigate to /chat if we're just refreshing tokens
                 if (event === 'SIGNED_IN') {
                     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'easitai-semifinal-main.vercel.app') {
@@ -46,6 +80,7 @@ const App: React.FC = () => {
             } else if (event === 'SIGNED_OUT') {
                 setUser(null);
                 setJwt(null);
+                posthog.reset();
             }
         });
         
@@ -82,6 +117,8 @@ const App: React.FC = () => {
         setUser(guestUser);
         setJwt("guest-demo-token");
         
+        posthog.capture('guest_login');
+        
         if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'easitai-semifinal-main.vercel.app') {
             window.location.href = 'https://easitai-semifinal-main.vercel.app/chat';
         } else {
@@ -92,6 +129,11 @@ const App: React.FC = () => {
     const handleLoginSuccess = (newUser: User, token: string) => {
         setUser(newUser);
         setJwt(token);
+        
+        posthog.identify(newUser.email, {
+            email: newUser.email,
+            name: newUser.name
+        });
         
         if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'easitai-semifinal-main.vercel.app') {
             window.location.href = 'https://easitai-semifinal-main.vercel.app/chat';

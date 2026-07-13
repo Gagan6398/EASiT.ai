@@ -18,6 +18,7 @@ import {
   type ConsensusResult 
 } from './services/gcgoEngine.ts';
 import { responseCache } from './services/responseCache.ts';
+import posthog from './services/posthog.ts';
 
 interface ChatAppProps {
   user: User;
@@ -77,6 +78,19 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
           websocketService.removeStatusListener(handleStatusChange);
       };
   }, []);
+
+  // Handle Stripe Success Redirect
+  useEffect(() => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('success') === 'true') {
+          addToast('Payment successful! Welcome to Easit Pro 🎉', 'success');
+          posthog.capture('payment_success', { tier: 'pro' });
+          
+          // Clean up URL
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+      }
+  }, [addToast]);
 
   const loadConversations = useCallback(async () => {
     setIsLoading(true);
