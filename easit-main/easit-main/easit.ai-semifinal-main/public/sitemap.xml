@@ -1,66 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Homepage -->
   <url>
     <loc>https://easitai-semifinal-main.vercel.app/</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-07-14T22:13:03.143Z</lastmod>
     <priority>1.0</priority>
   </url>
-
-  <!-- About -->
   <url>
     <loc>https://easitai-semifinal-main.vercel.app/about</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-07-14T22:13:03.143Z</lastmod>
     <priority>0.8</priority>
   </url>
-
-  <!-- Features -->
   <url>
     <loc>https://easitai-semifinal-main.vercel.app/features</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-07-14T22:13:03.143Z</lastmod>
     <priority>0.8</priority>
   </url>
-
-  <!-- Pricing -->
   <url>
     <loc>https://easitai-semifinal-main.vercel.app/pricing</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-07-14T22:13:03.143Z</lastmod>
+    <priority>0.8</priority>
   </url>
-
-  <!-- Legal Hub -->
   <url>
     <loc>https://easitai-semifinal-main.vercel.app/legal</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
+    <lastmod>2026-07-14T22:13:03.143Z</lastmod>
+    <priority>0.8</priority>
   </url>
-
-  <!-- Sign In / Sign Up -->
   <url>
     <loc>https://easitai-semifinal-main.vercel.app/auth</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-  <!-- Terms of Service -->
-  <url>
-    <loc>https://easitai-semifinal-main.vercel.app/terms.html</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
-  </url>
-
-  <!-- Privacy Policy -->
-  <url>
-    <loc>https://easitai-semifinal-main.vercel.app/privacy.html</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
+    <lastmod>2026-07-14T22:13:03.143Z</lastmod>
+    <priority>0.8</priority>
   </url>
 </urlset>

@@ -31,6 +31,7 @@ const MicButton: React.FC<{ status: GeminiLiveStatus; onClick: () => void }> = (
                         onClick={onClick}
                         className="flex items-center justify-center w-11 h-11 rounded-full bg-red-500 hover:bg-red-600 text-text-dark shadow-[0_0_15px_rgba(239,68,68,0.5)] ring-4 ring-red-500/20 animate-pulse transition-all duration-300"
                         title="Stop Listening"
+                        aria-label="Stop Listening"
                     >
                         <Square size={18} className="fill-current" />
                     </button>
@@ -41,6 +42,7 @@ const MicButton: React.FC<{ status: GeminiLiveStatus; onClick: () => void }> = (
                         onClick={onClick}
                         className="flex items-center justify-center w-11 h-11 rounded-full bg-red-600 hover:bg-red-700 text-text-dark shadow-lg transition-all duration-300"
                         title="Retry Connection"
+                        aria-label="Retry Connection"
                     >
                         <AlertCircle size={20} />
                     </button>
@@ -51,6 +53,7 @@ const MicButton: React.FC<{ status: GeminiLiveStatus; onClick: () => void }> = (
                         onClick={onClick}
                         className="flex items-center justify-center w-11 h-11 rounded-full bg-gold-gradient hover:bg-gold-gradient/90 text-text-dark shadow-lg shadow-brand-blue/30 hover:scale-105 transition-all duration-300"
                         title="Start Voice Chat"
+                        aria-label="Start Voice Chat"
                     >
                         <Mic size={20} />
                     </button>
@@ -302,6 +305,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             <button
                 onClick={handleSend}
                 disabled={!inputText.trim() || isInputDisabled}
+                aria-label="Send Message"
                 className={`flex items-center justify-center w-11 h-11 rounded-full text-text-dark disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:scale-105 ${
                   queryMode === 'consensus'
                     ? 'bg-brand-purple shadow-brand-purple/20 hover:bg-brand-purple/90'

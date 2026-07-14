@@ -1,0 +1,16 @@
+{
+  "name": "Easit.ai",
+  "short_name": "Easit",
+  "description": "Hallucination-free AI Voice Assistant.",
+  "start_url": "/chat",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    {
+      "src": "/og-image.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

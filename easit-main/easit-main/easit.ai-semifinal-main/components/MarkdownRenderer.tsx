@@ -1,19 +1,35 @@
-/**
- * EASIT.ai — Zero-Dependency Markdown Renderer v2.1
- * 
- * Renders Markdown to React elements without any external libraries.
- * Supports: headings, bold, italic, strikethrough, inline code, fenced code blocks,
- * unordered/ordered lists, task lists, blockquotes, tables, links, horizontal rules.
- * 
- * v2.1 Changes:
- * - Fixed nested bold+italic parsing (sequential passes)
- * - Added ~~strikethrough~~ support
- * - Added task list checkbox support (- [ ] / - [x])
- * - Added copy fallback for non-secure contexts
- * - Performance: memoized inline parsing
- */
+import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import tsx from 'react-syntax-highlighter/dist/esm/languages/prism/tsx';
+import typescript from 'react-syntax-highlighter/dist/esm/languages/prism/typescript';
+import javascript from 'react-syntax-highlighter/dist/esm/languages/prism/javascript';
+import python from 'react-syntax-highlighter/dist/esm/languages/prism/python';
+import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
+import css from 'react-syntax-highlighter/dist/esm/languages/prism/css';
+import markdown from 'react-syntax-highlighter/dist/esm/languages/prism/markdown';
+import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
+import mermaid from 'mermaid';
+import { Check, Copy } from 'lucide-react';
 
-import React from 'react';
+// Register common languages to save bundle size
+SyntaxHighlighter.registerLanguage('tsx', tsx);
+SyntaxHighlighter.registerLanguage('typescript', typescript);
+SyntaxHighlighter.registerLanguage('javascript', javascript);
+SyntaxHighlighter.registerLanguage('python', python);
+SyntaxHighlighter.registerLanguage('json', json);
+SyntaxHighlighter.registerLanguage('css', css);
+SyntaxHighlighter.registerLanguage('markdown', markdown);
+SyntaxHighlighter.registerLanguage('bash', bash);
+
+mermaid.initialize({
+    startOnLoad: false,
+    theme: 'dark',
+    securityLevel: 'loose',
+    fontFamily: 'Inter, sans-serif'
+});
 
 interface MarkdownRendererProps {
   content: string;
@@ -23,17 +39,15 @@ interface MarkdownRendererProps {
 // ─── COPY TO CLIPBOARD UTILITY ─────────────────────
 
 async function copyToClipboard(text: string): Promise<boolean> {
-  // Modern API (requires secure context)
   if (navigator.clipboard && window.isSecureContext) {
     try {
       await navigator.clipboard.writeText(text);
       return true;
     } catch {
-      // Fall through to fallback
+      // Fall through
     }
   }
   
-  // Fallback for non-secure contexts
   try {
     const textarea = document.createElement('textarea');
     textarea.value = text;
@@ -50,363 +64,150 @@ async function copyToClipboard(text: string): Promise<boolean> {
   }
 }
 
-// ─── INLINE PARSER ─────────────────────────────────
+// ─── MERMAID RENDERER COMPONENT ─────────────────────
 
-function parseInline(text: string): React.ReactNode[] {
-  const nodes: React.ReactNode[] = [];
-  // Pattern: bold, italic, strikethrough, inline code, links
-  // Using sequential matching to handle nesting correctly
-  const pattern = /(\*\*(.+?)\*\*)|(\*(.+?)\*)|(`(.+?)`)|(~~(.+?)~~)|(\[([^\]]+)\]\(([^)]+)\))/g;
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-  let key = 0;
+const MermaidDiagram = ({ code }: { code: string }) => {
+    const [svg, setSvg] = useState<string>('');
+    const [error, setError] = useState<string>('');
+    const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
 
-  while ((match = pattern.exec(text)) !== null) {
-    // Push text before match
-    if (match.index > lastIndex) {
-      nodes.push(text.slice(lastIndex, match.index));
-    }
+    useEffect(() => {
+        const renderDiagram = async () => {
+            try {
+                const { svg: renderedSvg } = await mermaid.render(id, code);
+                setSvg(renderedSvg);
+                setError('');
+            } catch (err: any) {
+                console.error("Mermaid parsing error:", err);
+                setError(err.message || 'Failed to render diagram');
+            }
+        };
+        renderDiagram();
+    }, [code, id]);
 
-    if (match[1]) {
-      // **bold** — recursively parse inner content for nested italic
-      const innerContent = match[2];
-      const hasInnerItalic = /\*(.+?)\*/.test(innerContent);
-      if (hasInnerItalic) {
-        nodes.push(
-          <strong key={`b-${key++}`} className="text-white font-semibold">
-            {parseInline(innerContent)}
-          </strong>
+    if (error) {
+        return (
+            <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-lg text-red-400 text-xs font-mono overflow-auto my-4">
+                <p className="font-bold mb-2">Mermaid Syntax Error:</p>
+                {error}
+            </div>
         );
-      } else {
-        nodes.push(<strong key={`b-${key++}`} className="text-white font-semibold">{innerContent}</strong>);
-      }
-    } else if (match[3]) {
-      // *italic*
-      nodes.push(<em key={`i-${key++}`} className="italic text-gray-300">{match[4]}</em>);
-    } else if (match[5]) {
-      // `inline code`
-      nodes.push(
-        <code key={`c-${key++}`} className="px-1.5 py-0.5 rounded bg-white/10 text-neon-cyan font-mono text-[0.85em]">
-          {match[6]}
-        </code>
-      );
-    } else if (match[7]) {
-      // ~~strikethrough~~
-      nodes.push(
-        <del key={`s-${key++}`} className="text-gray-500 line-through">
-          {match[8]}
-        </del>
-      );
-    } else if (match[9]) {
-      // [link](url)
-      nodes.push(
-        <a
-          key={`a-${key++}`}
-          href={match[11]}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-brand-blue hover:text-brand-blue/80 underline underline-offset-2 transition-colors"
-        >
-          {match[10]}
-        </a>
-      );
     }
 
-    lastIndex = match.index + match[0].length;
-  }
-
-  if (lastIndex < text.length) {
-    nodes.push(text.slice(lastIndex));
-  }
-
-  return nodes.length > 0 ? nodes : [text];
-}
-
-// ─── BLOCK PARSER ──────────────────────────────────
-
-interface ParsedBlock {
-  type: 'heading' | 'code' | 'blockquote' | 'ul' | 'ol' | 'tasklist' | 'table' | 'hr' | 'paragraph';
-  content: string;
-  level?: number;        // heading level
-  language?: string;     // code block language
-  rows?: string[][];     // table rows
-  items?: string[];      // list items
-  taskItems?: { checked: boolean; text: string }[]; // task list items
-}
-
-function parseBlocks(markdown: string): ParsedBlock[] {
-  const lines = markdown.split('\n');
-  const blocks: ParsedBlock[] = [];
-  let i = 0;
-
-  while (i < lines.length) {
-    const line = lines[i];
-
-    // ── Fenced code block ──
-    const codeMatch = line.match(/^```(\w*)/);
-    if (codeMatch) {
-      const language = codeMatch[1] || 'text';
-      const codeLines: string[] = [];
-      i++;
-      while (i < lines.length && !lines[i].startsWith('```')) {
-        codeLines.push(lines[i]);
-        i++;
-      }
-      blocks.push({ type: 'code', content: codeLines.join('\n'), language });
-      i++; // skip closing ```
-      continue;
+    if (!svg) {
+        return <div className="animate-pulse h-32 bg-white/5 rounded-lg my-4 flex items-center justify-center text-gray-500 text-sm">Rendering Diagram...</div>;
     }
 
-    // ── Horizontal rule ──
-    if (/^(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) {
-      blocks.push({ type: 'hr', content: '' });
-      i++;
-      continue;
-    }
-
-    // ── Heading ──
-    const headingMatch = line.match(/^(#{1,4})\s+(.+)/);
-    if (headingMatch) {
-      blocks.push({ type: 'heading', content: headingMatch[2], level: headingMatch[1].length });
-      i++;
-      continue;
-    }
-
-    // ── Blockquote ──
-    if (line.startsWith('> ')) {
-      const quoteLines: string[] = [];
-      while (i < lines.length && lines[i].startsWith('> ')) {
-        quoteLines.push(lines[i].slice(2));
-        i++;
-      }
-      blocks.push({ type: 'blockquote', content: quoteLines.join('\n') });
-      continue;
-    }
-
-    // ── Table ──
-    if (line.includes('|') && i + 1 < lines.length && /^\|?\s*[-:]+/.test(lines[i + 1])) {
-      const tableRows: string[][] = [];
-      // Header row
-      tableRows.push(line.split('|').map(c => c.trim()).filter(Boolean));
-      i++; // skip separator
-      i++;
-      while (i < lines.length && lines[i].includes('|')) {
-        tableRows.push(lines[i].split('|').map(c => c.trim()).filter(Boolean));
-        i++;
-      }
-      blocks.push({ type: 'table', content: '', rows: tableRows });
-      continue;
-    }
-
-    // ── Task list (- [ ] or - [x]) ──
-    if (/^[\s]*[-*+]\s+\[([ xX])\]\s+/.test(line)) {
-      const taskItems: { checked: boolean; text: string }[] = [];
-      while (i < lines.length && /^[\s]*[-*+]\s+\[([ xX])\]\s+/.test(lines[i])) {
-        const taskMatch = lines[i].match(/^[\s]*[-*+]\s+\[([ xX])\]\s+(.*)/);
-        if (taskMatch) {
-          taskItems.push({
-            checked: taskMatch[1].toLowerCase() === 'x',
-            text: taskMatch[2]
-          });
-        }
-        i++;
-      }
-      blocks.push({ type: 'tasklist', content: '', taskItems });
-      continue;
-    }
-
-    // ── Unordered list ──
-    if (/^[\s]*[-*+]\s+/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^[\s]*[-*+]\s+/.test(lines[i])) {
-        items.push(lines[i].replace(/^[\s]*[-*+]\s+/, ''));
-        i++;
-      }
-      blocks.push({ type: 'ul', content: '', items });
-      continue;
-    }
-
-    // ── Ordered list ──
-    if (/^\s*\d+[.)]\s+/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])) {
-        items.push(lines[i].replace(/^\s*\d+[.)]\s+/, ''));
-        i++;
-      }
-      blocks.push({ type: 'ol', content: '', items });
-      continue;
-    }
-
-    // ── Empty line ──
-    if (line.trim() === '') {
-      i++;
-      continue;
-    }
-
-    // ── Paragraph (collect consecutive non-empty lines) ──
-    const paraLines: string[] = [];
-    while (i < lines.length && lines[i].trim() !== '' && !lines[i].startsWith('#') && !lines[i].startsWith('```') && !lines[i].startsWith('> ') && !/^[-*+]\s+/.test(lines[i]) && !/^\d+[.)]\s+/.test(lines[i]) && !/^(-{3,}|\*{3,}|_{3,})\s*$/.test(lines[i])) {
-      paraLines.push(lines[i]);
-      i++;
-    }
-    if (paraLines.length > 0) {
-      blocks.push({ type: 'paragraph', content: paraLines.join(' ') });
-    }
-  }
-
-  return blocks;
-}
-
-// ─── REACT RENDERER ────────────────────────────────
-
-function renderBlock(block: ParsedBlock, index: number): React.ReactNode {
-  switch (block.type) {
-    case 'heading': {
-      const headingClasses: Record<number, string> = {
-        1: 'text-xl font-bold text-white mt-6 mb-3 pb-2 border-b border-white/10',
-        2: 'text-lg font-bold text-white mt-5 mb-2',
-        3: 'text-base font-semibold text-gray-200 mt-4 mb-2',
-        4: 'text-sm font-semibold text-gray-300 mt-3 mb-1',
-      };
-      const Tag = `h${block.level || 2}` as any;
-      return (
-        <Tag key={index} className={headingClasses[block.level || 2]}>
-          {parseInline(block.content)}
-        </Tag>
-      );
-    }
-
-    case 'code':
-      return (
-        <div key={index} className="my-4 rounded-xl overflow-hidden border border-white/10 shadow-lg">
-          <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-500">
-              {block.language || 'code'}
-            </span>
-            <button
-              onClick={() => copyToClipboard(block.content)}
-              className="text-[10px] font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-wider"
-            >
-              Copy
-            </button>
-          </div>
-          <pre className="p-4 overflow-x-auto bg-[#0a0a12] text-sm leading-relaxed">
-            <code className="font-mono text-gray-300">{block.content}</code>
-          </pre>
-        </div>
-      );
-
-    case 'blockquote':
-      return (
-        <blockquote
-          key={index}
-          className="my-4 pl-4 border-l-4 border-brand-purple/50 bg-brand-purple/5 py-3 pr-4 rounded-r-lg text-gray-300 italic"
-        >
-          {parseInline(block.content)}
-        </blockquote>
-      );
-
-    case 'tasklist':
-      return (
-        <ul key={index} className="my-3 space-y-1.5 pl-2">
-          {block.taskItems?.map((item, i) => (
-            <li key={i} className="flex items-start gap-2 text-gray-300 leading-relaxed">
-              <span className={`inline-flex items-center justify-center w-4 h-4 mt-1 rounded border flex-shrink-0 ${
-                item.checked 
-                  ? 'bg-brand-blue border-brand-blue text-white' 
-                  : 'border-gray-500 bg-transparent'
-              }`}>
-                {item.checked && (
-                  <svg viewBox="0 0 12 12" className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="2,6 5,9 10,3" />
-                  </svg>
-                )}
-              </span>
-              <span className={item.checked ? 'line-through text-gray-500' : ''}>
-                {parseInline(item.text)}
-              </span>
-            </li>
-          ))}
-        </ul>
-      );
-
-    case 'ul':
-      return (
-        <ul key={index} className="my-3 space-y-1.5 pl-5">
-          {block.items?.map((item, i) => (
-            <li key={i} className="text-gray-300 leading-relaxed list-disc marker:text-brand-blue">
-              {parseInline(item)}
-            </li>
-          ))}
-        </ul>
-      );
-
-    case 'ol':
-      return (
-        <ol key={index} className="my-3 space-y-1.5 pl-5 list-decimal marker:text-brand-blue marker:font-bold">
-          {block.items?.map((item, i) => (
-            <li key={i} className="text-gray-300 leading-relaxed">
-              {parseInline(item)}
-            </li>
-          ))}
-        </ol>
-      );
-
-    case 'table':
-      return (
-        <div key={index} className="my-4 overflow-x-auto rounded-xl border border-white/10">
-          <table className="w-full text-sm">
-            {block.rows && block.rows.length > 0 && (
-              <>
-                <thead>
-                  <tr className="bg-white/5 border-b border-white/10">
-                    {block.rows[0].map((cell, ci) => (
-                      <th key={ci} className="px-4 py-2.5 text-left font-bold text-gray-300 text-xs uppercase tracking-wider">
-                        {parseInline(cell)}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {block.rows.slice(1).map((row, ri) => (
-                    <tr key={ri} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                      {row.map((cell, ci) => (
-                        <td key={ci} className="px-4 py-2.5 text-gray-400">
-                          {parseInline(cell)}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </>
-            )}
-          </table>
-        </div>
-      );
-
-    case 'hr':
-      return <hr key={index} className="my-6 border-white/10" />;
-
-    case 'paragraph':
-      return (
-        <p key={index} className="text-gray-300 leading-relaxed mb-3">
-          {parseInline(block.content)}
-        </p>
-      );
-
-    default:
-      return null;
-  }
-}
+    return (
+        <div 
+            className="my-6 p-6 bg-white flex justify-center items-center rounded-xl overflow-x-auto border border-gray-200 shadow-sm mermaid-container"
+            dangerouslySetInnerHTML={{ __html: svg }} 
+        />
+    );
+};
 
 // ─── MAIN COMPONENT ────────────────────────────────
 
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className = '' }) => {
-  const blocks = React.useMemo(() => parseBlocks(content), [content]);
-
   return (
     <div className={`markdown-rendered ${className}`}>
-      {blocks.map((block, index) => renderBlock(block, index))}
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+            // Typography
+            h1: ({node, ...props}) => <h1 className="text-xl font-bold text-gray-800 dark:text-white mt-6 mb-3 pb-2 border-b border-gray-200 dark:border-white/10" {...props} />,
+            h2: ({node, ...props}) => <h2 className="text-lg font-bold text-gray-800 dark:text-white mt-5 mb-2" {...props} />,
+            h3: ({node, ...props}) => <h3 className="text-base font-semibold text-gray-700 dark:text-gray-200 mt-4 mb-2" {...props} />,
+            h4: ({node, ...props}) => <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mt-3 mb-1" {...props} />,
+            p: ({node, ...props}) => <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-3" {...props} />,
+            
+            // Inline elements
+            a: ({node, ...props}) => <a className="text-brand-blue hover:text-brand-blue/80 underline underline-offset-2 transition-colors" target="_blank" rel="noopener noreferrer" {...props} />,
+            strong: ({node, ...props}) => <strong className="font-semibold text-gray-900 dark:text-white" {...props} />,
+            em: ({node, ...props}) => <em className="italic text-gray-600 dark:text-gray-400" {...props} />,
+            del: ({node, ...props}) => <del className="text-gray-500 line-through" {...props} />,
+            
+            // Lists
+            ul: ({node, ...props}) => <ul className="my-3 space-y-1.5 pl-5 list-disc marker:text-brand-blue text-gray-700 dark:text-gray-300 leading-relaxed" {...props} />,
+            ol: ({node, ...props}) => <ol className="my-3 space-y-1.5 pl-5 list-decimal marker:text-brand-blue marker:font-bold text-gray-700 dark:text-gray-300 leading-relaxed" {...props} />,
+            li: ({node, ...props}) => <li className="pl-1" {...props} />,
+            
+            // Blockquotes & HR
+            blockquote: ({node, ...props}) => <blockquote className="my-4 pl-4 border-l-4 border-brand-purple/50 bg-brand-purple/5 py-3 pr-4 rounded-r-lg text-gray-600 dark:text-gray-300 italic" {...props} />,
+            hr: ({node, ...props}) => <hr className="my-6 border-gray-200 dark:border-white/10" {...props} />,
+
+            // Tables
+            table: ({node, ...props}) => <div className="my-4 overflow-x-auto rounded-xl border border-gray-200 dark:border-white/10"><table className="w-full text-sm" {...props} /></div>,
+            thead: ({node, ...props}) => <thead className="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/10" {...props} />,
+            th: ({node, ...props}) => <th className="px-4 py-2.5 text-left font-bold text-gray-700 dark:text-gray-300 text-xs uppercase tracking-wider" {...props} />,
+            tbody: ({node, ...props}) => <tbody {...props} />,
+            tr: ({node, ...props}) => <tr className="border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors" {...props} />,
+            td: ({node, ...props}) => <td className="px-4 py-2.5 text-gray-600 dark:text-gray-400" {...props} />,
+
+            // Code Blocks & Mermaid
+            code({node, inline, className, children, ...props}: any) {
+                const match = /language-(\w+)/.exec(className || '');
+                const language = match ? match[1] : '';
+                const codeString = String(children).replace(/\n$/, '');
+
+                if (inline) {
+                    return (
+                        <code className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-white/10 text-brand-blue dark:text-neon-cyan font-mono text-[0.85em]" {...props}>
+                            {children}
+                        </code>
+                    );
+                }
+
+                if (language === 'mermaid') {
+                    return <MermaidDiagram code={codeString} />;
+                }
+
+                const CodeBlockWrapper = () => {
+                    const [copied, setCopied] = useState(false);
+                    return (
+                        <div className="my-4 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-lg group">
+                            <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/10">
+                                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-500">
+                                    {language || 'text'}
+                                </span>
+                                <button
+                                    onClick={async () => {
+                                        const success = await copyToClipboard(codeString);
+                                        if (success) {
+                                            setCopied(true);
+                                            setTimeout(() => setCopied(false), 2000);
+                                        }
+                                    }}
+                                    className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors uppercase tracking-wider"
+                                >
+                                    {copied ? (
+                                        <><Check size={12} className="text-green-500" /> Copied</>
+                                    ) : (
+                                        <><Copy size={12} /> Copy</>
+                                    )}
+                                </button>
+                            </div>
+                            <div className="text-sm">
+                                <SyntaxHighlighter
+                                    style={oneDark}
+                                    language={language || 'text'}
+                                    PreTag="div"
+                                    customStyle={{ margin: 0, padding: '1rem', background: '#0a0a12' }}
+                                    {...props}
+                                >
+                                    {codeString}
+                                </SyntaxHighlighter>
+                            </div>
+                        </div>
+                    );
+                };
+
+                return <CodeBlockWrapper />;
+            }
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
 };

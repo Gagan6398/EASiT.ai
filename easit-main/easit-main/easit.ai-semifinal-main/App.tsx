@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { LandingPage } from './components/LandingPage.tsx';
-import ChatApp from './ChatApp.tsx';
-import DeepResearchApp from './DeepResearchApp.tsx';
 import { AuthPage } from './components/AuthPage.tsx';
-import { SettingsPage } from './SettingsPage.tsx';
-import { AboutPage } from './components/AboutPage.tsx';
-import { FeaturesPage } from './components/FeaturesPage.tsx';
-import { PricingPage } from './components/PricingPage.tsx';
-import { LegalPage } from './components/LegalPage.tsx';
 import { useTheme } from './hooks/useTheme.ts';
 import { useLocalStorage } from './hooks/useLocalStorage.ts';
 import type { User } from './types.ts';
 import { supabase } from './services/supabaseClient.ts';
 import posthog from './services/posthog.ts';
+
+// Dynamic Imports for Code Splitting
+const ChatApp = React.lazy(() => import('./ChatApp.tsx'));
+const DeepResearchApp = React.lazy(() => import('./DeepResearchApp.tsx'));
+const SettingsPage = React.lazy(() => import('./SettingsPage.tsx').then(m => ({ default: m.SettingsPage })));
+const AboutPage = React.lazy(() => import('./components/AboutPage.tsx').then(m => ({ default: m.AboutPage })));
+const FeaturesPage = React.lazy(() => import('./components/FeaturesPage.tsx').then(m => ({ default: m.FeaturesPage })));
+const PricingPage = React.lazy(() => import('./components/PricingPage.tsx').then(m => ({ default: m.PricingPage })));
+const LegalPage = React.lazy(() => import('./components/LegalPage.tsx').then(m => ({ default: m.LegalPage })));
+
 
 const App: React.FC = () => {
     const [user, setUser] = useLocalStorage<User | null>('easit-user', null);
@@ -21,8 +24,14 @@ const App: React.FC = () => {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
     const navigate = useNavigate();
+    const location = useLocation();
     
     useTheme();
+
+    // Track SPA Pageviews automatically on route change
+    useEffect(() => {
+        posthog.capture('$pageview');
+    }, [location]);
 
     useEffect(() => {
         // 1. Sync initial session on page load
@@ -117,7 +126,12 @@ const App: React.FC = () => {
     };
 
     return (
-        <Routes>
+        <React.Suspense fallback={
+            <div className="min-h-screen bg-cream-bg flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-[#CFA54D] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        }>
+            <Routes>
             <Route 
                 path="/" 
                 element={
@@ -169,6 +183,7 @@ const App: React.FC = () => {
             />
             <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        </React.Suspense>
     );
 };
 

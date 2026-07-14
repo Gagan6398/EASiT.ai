@@ -52,6 +52,23 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
   const conversationsRef = useRef<Conversation[]>([]);
   conversationsRef.current = conversations;
 
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>(
+    navigator.onLine ? 'connected' : 'disconnected'
+  );
+
+  useEffect(() => {
+    const handleOnline = () => setConnectionStatus('connected');
+    const handleOffline = () => setConnectionStatus('disconnected');
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   const addToast = useCallback((message: string, type: ToastType) => {
     const id = Date.now().toString() + Math.random();
     setToasts(prev => [...prev, { id, message, type }]);
@@ -447,7 +464,7 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
           onShowSettings={() => setSettingsModalVisible(true)} 
           onSaveConversation={handleSaveConversation} 
           conversationTitle={activeConversation?.title} 
-          connectionStatus={'connected'} 
+          connectionStatus={connectionStatus}
         />
         <div className="flex-1 overflow-hidden">{renderContent()}</div>
       </main>

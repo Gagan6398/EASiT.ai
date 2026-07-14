@@ -212,10 +212,10 @@ export function SettingsModal({ settings, onUpdate, onClose }: SettingsModalProp
                       {key.key_value}
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <button onClick={() => handleCopy(key.key_value)} className="p-1.5 text-gray-500 hover:text-[#CFA54D] bg-gray-100 dark:bg-gray-700 rounded transition-colors" title="Copy Key">
+                      <button onClick={() => handleCopy(key.key_value)} className="p-1.5 text-gray-500 hover:text-[#CFA54D] bg-gray-100 dark:bg-gray-700 rounded transition-colors" title="Copy Key" aria-label="Copy Key">
                         <Copy size={14} />
                       </button>
-                      <button onClick={() => handleDeleteKey(key.id)} className="p-1.5 text-red-400 hover:text-red-600 bg-red-50 dark:bg-red-900/20 rounded transition-colors" title="Revoke Key">
+                      <button onClick={() => handleDeleteKey(key.id)} className="p-1.5 text-red-400 hover:text-red-600 bg-red-50 dark:bg-red-900/20 rounded transition-colors" title="Revoke Key" aria-label="Revoke Key">
                         <Trash2 size={14} />
                       </button>
                     </div>
