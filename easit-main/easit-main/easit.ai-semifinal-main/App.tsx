@@ -12,7 +12,6 @@ import { LegalPage } from './components/LegalPage.tsx';
 import { useTheme } from './hooks/useTheme.ts';
 import { useLocalStorage } from './hooks/useLocalStorage.ts';
 import type { User } from './types.ts';
-import { websocketService } from './services/websocketService.ts';
 import { supabase } from './services/supabaseClient.ts';
 import posthog from './services/posthog.ts';
 
@@ -83,17 +82,6 @@ const App: React.FC = () => {
         };
     }, []);
 
-    useEffect(() => {
-        if (jwt && jwt !== 'guest-demo-token') {
-            websocketService.connect(jwt);
-        } else {
-            websocketService.disconnect();
-        }
-
-        return () => {
-            websocketService.disconnect();
-        };
-    }, [jwt]);
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();

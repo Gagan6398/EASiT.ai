@@ -53,7 +53,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                             <button onClick={onOpenSignup} className="bg-[#00F0FF] text-black px-8 py-4 rounded-lg font-bold text-lg shadow-[0_0_20px_rgba(0,240,255,0.2)] hover:shadow-[0_0_30px_rgba(0,240,255,0.4)] transition-all flex items-center gap-2 w-full sm:w-auto justify-center">
                                 Get Started Now <ArrowRight size={20} />
                             </button>
-                            <button className="border border-gray-700 bg-gray-900/50 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-800 transition-all flex items-center gap-2 w-full sm:w-auto justify-center">
+                            <button onClick={() => document.getElementById('research')?.scrollIntoView({ behavior: 'smooth' })} className="border border-gray-700 bg-gray-900/50 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-800 transition-all flex items-center gap-2 w-full sm:w-auto justify-center">
                                 <Play size={20} /> Watch Demo
                             </button>
                         </div>
@@ -164,7 +164,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
 
                 {/* Real-Time Data Processing */}
                 <section className="w-full max-w-6xl mx-auto px-6 py-24 border-t border-gray-800/50">
-                    <div className="bg-[#12141a] border border-gray-800 rounded-3xl p-10 lg:p-16 flex flex-col lg:flex-row items-center gap-16 relative overflow-hidden">
+                    <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="bg-[#12141a] border border-gray-800 rounded-3xl p-10 lg:p-16 flex flex-col lg:flex-row items-center gap-16 relative overflow-hidden hover:border-[#00F0FF]/30 transition-colors cursor-pointer group">
                         <div className="absolute -top-40 -left-40 w-96 h-96 bg-[#00F0FF]/5 rounded-full blur-3xl pointer-events-none"></div>
                         <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
                         
@@ -256,12 +256,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                     <p className="text-gray-400 max-w-2xl mx-auto mb-10 text-lg">
                         Engage in fluid, real-time conversations utilizing secure WebSockets. Experience near zero-latency communication designed for natural interaction.
                     </p>
-                    <div className="inline-flex items-center gap-4 bg-[#12141a] border border-gray-800 rounded-xl p-4 shadow-xl text-left">
-                        <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center text-red-500">
+                    <div onClick={onOpenSignup} className="inline-flex items-center gap-4 bg-[#12141a] border border-gray-800 rounded-xl p-4 shadow-xl text-left hover:border-purple-500/30 transition-colors cursor-pointer group">
+                        <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
                             <Lock size={20} />
                         </div>
                         <div>
-                            <h4 className="text-white font-bold text-sm">Ephemeral Audio Processing</h4>
+                            <h4 className="text-white font-bold text-sm group-hover:text-purple-400 transition-colors">Ephemeral Audio Processing</h4>
                             <p className="text-xs text-gray-500">Audio logs are processed in-memory and never stored. Absolute privacy, zero data retention on voice interactions.</p>
                         </div>
                     </div>
@@ -392,9 +392,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                                 As an AI Researcher and the founder of EASiT, Gagan Chaudhary is on a mission to make artificial intelligence truly reliable. With a strong foundation in deep learning and large language models, he leads EASiT's product development, building systems that prioritize factual accuracy over generative fluency. His extensive work with complex models, training pipelines and applied mathematics over recent years, cementing that his framework is indeed powerful but actually grounded in reality.
                             </p>
                             <div className="flex items-center gap-4">
-                                <a href="#" className="text-[#00F0FF] bg-[#00F0FF]/10 p-2 rounded hover:bg-[#00F0FF]/20 transition-colors"><div className="w-5 h-5 flex items-center justify-center font-bold">in</div></a>
-                                <a href="#" className="text-[#00F0FF] bg-[#00F0FF]/10 p-2 rounded hover:bg-[#00F0FF]/20 transition-colors"><div className="w-5 h-5 flex items-center justify-center font-bold">X</div></a>
-                                <a href="#" className="text-[#00F0FF] bg-[#00F0FF]/10 p-2 rounded hover:bg-[#00F0FF]/20 transition-colors"><div className="w-5 h-5 flex items-center justify-center font-bold">G</div></a>
+                                <a href="https://linkedin.com/in/gaganchaudhary" target="_blank" rel="noreferrer" className="text-[#00F0FF] bg-[#00F0FF]/10 p-2 rounded hover:bg-[#00F0FF]/20 transition-colors"><div className="w-5 h-5 flex items-center justify-center font-bold">in</div></a>
+                                <a href="https://twitter.com/easit_ai" target="_blank" rel="noreferrer" className="text-[#00F0FF] bg-[#00F0FF]/10 p-2 rounded hover:bg-[#00F0FF]/20 transition-colors"><div className="w-5 h-5 flex items-center justify-center font-bold">X</div></a>
+                                <a href="https://github.com/Gagan6398" target="_blank" rel="noreferrer" className="text-[#00F0FF] bg-[#00F0FF]/10 p-2 rounded hover:bg-[#00F0FF]/20 transition-colors"><div className="w-5 h-5 flex items-center justify-center font-bold">G</div></a>
                             </div>
                         </div>
                     </div>
@@ -431,7 +431,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                     </div>
                 </div>
                 <div className="max-w-6xl mx-auto text-center text-xs text-gray-600 border-t border-gray-800/50 pt-8">
-                    &copy; 2026 Easit.AI. All rights reserved.
+                    &copy; {new Date().getFullYear()} Easit.AI. All rights reserved.
                 </div>
             </footer>
 
