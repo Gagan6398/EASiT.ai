@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.22.0",
+    "@react-oauth/google": "^0.13.5",
     "@supabase/supabase-js": "^2.110.2",
     "@types/node": "^22.14.0",
     "@types/react-syntax-highlighter": "^15.5.13",

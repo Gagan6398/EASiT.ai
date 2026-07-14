@@ -7,6 +7,7 @@ import { useLocalStorage } from './hooks/useLocalStorage.ts';
 import type { User } from './types.ts';
 import { supabase } from './services/supabaseClient.ts';
 import posthog from './services/posthog.ts';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // Dynamic Imports for Code Splitting
 const ChatApp = React.lazy(() => import('./ChatApp.tsx'));
@@ -126,64 +127,66 @@ const App: React.FC = () => {
     };
 
     return (
-        <React.Suspense fallback={
-            <div className="min-h-screen bg-cream-bg flex items-center justify-center">
-                <div className="w-8 h-8 border-4 border-[#CFA54D] border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        }>
-            <Routes>
-            <Route 
-                path="/" 
-                element={
-                    user ? <Navigate to="/chat" replace /> : (
-                        <>
-                            <LandingPage 
-                                onOpenLogin={() => { setAuthModalMode('login'); setIsAuthModalOpen(true); }} 
-                                onOpenSignup={() => { setAuthModalMode('signup'); setIsAuthModalOpen(true); }} 
-                                onEnterAsGuest={handleGuestLogin} 
-                            />
-                            {isAuthModalOpen && (
-                                <AuthPage 
-                                    initialMode={authModalMode}
-                                    onLoginSuccess={(u, t) => { setIsAuthModalOpen(false); handleLoginSuccess(u, t); }} 
-                                    onGoBack={() => setIsAuthModalOpen(false)} 
+        <GoogleOAuthProvider clientId="961144104930-kqcjt7navga41di2ulnsugstr5r55uqt.apps.googleusercontent.com">
+            <React.Suspense fallback={
+                <div className="min-h-screen bg-cream-bg flex items-center justify-center">
+                    <div className="w-8 h-8 border-4 border-[#CFA54D] border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            }>
+                <Routes>
+                <Route 
+                    path="/" 
+                    element={
+                        user ? <Navigate to="/chat" replace /> : (
+                            <>
+                                <LandingPage 
+                                    onOpenLogin={() => { setAuthModalMode('login'); setIsAuthModalOpen(true); }} 
+                                    onOpenSignup={() => { setAuthModalMode('signup'); setIsAuthModalOpen(true); }} 
+                                    onEnterAsGuest={handleGuestLogin} 
                                 />
-                            )}
-                        </>
-                    )
-                } 
-            />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/features" element={<FeaturesPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/legal" element={<LegalPage />} />
-            <Route 
-                path="/auth" 
-                element={
-                    user ? <Navigate to="/chat" replace /> : <AuthPage onLoginSuccess={handleLoginSuccess} onGoBack={() => navigate('/')} />
-                } 
-            />
-            <Route 
-                path="/chat" 
-                element={
-                    user ? <ChatApp user={user} onSignOut={handleSignOut} /> : <Navigate to="/" replace />
-                } 
-            />
-            <Route 
-                path="/research" 
-                element={
-                    user ? <DeepResearchApp user={user} onSignOut={handleSignOut} /> : <Navigate to="/" replace />
-                } 
-            />
-            <Route 
-                path="/settings" 
-                element={
-                    user ? <SettingsPage user={user} onSignOut={handleSignOut} /> : <Navigate to="/" replace />
-                } 
-            />
-            <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-        </React.Suspense>
+                                {isAuthModalOpen && (
+                                    <AuthPage 
+                                        initialMode={authModalMode}
+                                        onLoginSuccess={(u, t) => { setIsAuthModalOpen(false); handleLoginSuccess(u, t); }} 
+                                        onGoBack={() => setIsAuthModalOpen(false)} 
+                                    />
+                                )}
+                            </>
+                        )
+                    } 
+                />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/features" element={<FeaturesPage />} />
+                <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/legal" element={<LegalPage />} />
+                <Route 
+                    path="/auth" 
+                    element={
+                        user ? <Navigate to="/chat" replace /> : <AuthPage onLoginSuccess={handleLoginSuccess} onGoBack={() => navigate('/')} />
+                    } 
+                />
+                <Route 
+                    path="/chat" 
+                    element={
+                        user ? <ChatApp user={user} onSignOut={handleSignOut} /> : <Navigate to="/" replace />
+                    } 
+                />
+                <Route 
+                    path="/research" 
+                    element={
+                        user ? <DeepResearchApp user={user} onSignOut={handleSignOut} /> : <Navigate to="/" replace />
+                    } 
+                />
+                <Route 
+                    path="/settings" 
+                    element={
+                        user ? <SettingsPage user={user} onSignOut={handleSignOut} /> : <Navigate to="/" replace />
+                    } 
+                />
+                <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+            </React.Suspense>
+        </GoogleOAuthProvider>
     );
 };
 

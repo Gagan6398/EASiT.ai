@@ -12,16 +12,25 @@ export function getApiKey(): string {
 }
 
 const apiService = {
-    async googleAuth(): Promise<{ token: string; user: User }> {
-        const productionUrl = 'https://easitai-semifinal-main.vercel.app';
-        const redirectUrl = productionUrl + '/chat';
-        
-        const { error } = await supabase.auth.signInWithOAuth({
+    async googleAuthWithToken(idToken: string): Promise<{ token: string; user: User }> {
+        const { data, error } = await supabase.auth.signInWithIdToken({
             provider: 'google',
-            options: { redirectTo: redirectUrl }
+            token: idToken,
         });
-        if (error) throw error;
-        return { token: 'oauth-pending', user: { name: 'Pending', email: 'pending' } };
+
+        if (error) throw new Error(error.message);
+
+        // Auto-initialize E2E encryption key
+        await getEncryptionKey();
+
+        return {
+            token: data.session?.access_token || '',
+            user: {
+                name: data.user?.user_metadata?.name || data.user?.user_metadata?.full_name || data.user?.email?.split('@')[0] || 'User',
+                email: data.user?.email || '',
+                picture: data.user?.user_metadata?.avatar_url || data.user?.user_metadata?.picture
+            }
+        };
     },
     
     async login(email: string, password: string): Promise<{ token: string; user: User }> {
