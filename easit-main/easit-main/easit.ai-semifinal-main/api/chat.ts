@@ -1,21 +1,23 @@
+import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
+import { gatherGroundingContext } from '../services/factSources.ts';
+import { verifyResponse as runClaimVerification } from '../services/claimVerifier.ts';
+import { buildSystemInstruction, classifyQuery } from '../services/gcgoEngine.ts'; // We'll just import helpers
 
-// Initialize Supabase admin client
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || ''; 
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseServiceKey as string);
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export default async function handler(req: any, res: any) {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization');
+  // ── CORS ──
+  // Only allow our frontend
+  const allowedOrigin = process.env.NODE_ENV === 'development' ? '*' : 'https://easitai-semifinal-main.vercel.app';
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
@@ -23,7 +25,7 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    // 1. Verify API Key
+    // ── AUTHENTICATION ──
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ error: 'Missing or invalid Authorization header' });
@@ -31,7 +33,7 @@ export default async function handler(req: any, res: any) {
 
     const apiKey = authHeader.split(' ')[1];
     
-    // In a real app we'd use a service_role key to bypass RLS and look up the key
+    // Database lookup for real authentication
     const { data: keyData, error: keyError } = await supabase
       .from('api_keys')
       .select('user_id')
@@ -39,75 +41,157 @@ export default async function handler(req: any, res: any) {
       .single();
 
     if (keyError || !keyData) {
-      // If RLS blocks it (because we're using anon key), for the sake of MVP functionality 
-      // if it starts with easit_live_, we might just let it pass or return an error.
-      // To ensure it works for their demo, we'll allow it if they haven't set up service_role yet.
+      // For MVP, we still allow the easit_live_ prefix if they haven't set up the DB fully,
+      // but in production, we should reject this.
       if (!apiKey.startsWith('easit_live_')) {
           return res.status(401).json({ error: 'Invalid API key' });
       }
     }
 
-    // 2. Parse request
-    const { query, enableSearch = true, mode = 'consensus' } = req.body;
+    // ── REQUEST PARSING ──
+    const { 
+      query, 
+      conversationHistory = [], 
+      persona = { tone: 'friendly', verbosity: 'balanced', style: 'casual' },
+      enableSearch = true, 
+      stream = false 
+    } = req.body;
+
     if (!query) {
       return res.status(400).json({ error: 'Query is required' });
     }
 
-    // 3. Call Gemini
-    const geminiKey = process.env.VITE_GOOGLE_GENERATIVE_AI_KEY || process.env.GEMINI_API_KEY;
+    const geminiKey = process.env.GEMINI_API_KEY || process.env.VITE_GOOGLE_GENERATIVE_AI_KEY;
     if (!geminiKey) {
       return res.status(500).json({ error: 'Server configuration error: Missing Gemini API Key' });
     }
 
-    // G-C-G-O Protocol Prompt
-    const systemInstruction = `You are EASIT.ai — an advanced Multi-Agent system implementing the G-C-G-O Consensus Architecture (Gemini-Claude-Grok-OpenAI).
-You MUST provide a response with the following sections:
-1. Executive Summary
-2. Deep Analysis
-3. Contrarian View
-4. Confidence Assessment (format: **Confidence: XX%** - reason)`;
+    const ai = new GoogleGenAI({ apiKey: geminiKey });
+    const startTime = performance.now();
 
-    const tools = enableSearch ? [{ googleSearch: {} }] : undefined;
+    // ── STAGE 1: CLASSIFY & GATHER ──
+    const classification = classifyQuery(query);
+    const mode = classification.type === 'casual' ? 'quick' : 'verified';
+    const shouldSearch = enableSearch && classification.shouldSearch;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: query }] }],
-        systemInstruction: { parts: [{ text: systemInstruction }] },
-        tools: tools
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      return res.status(response.status).json({ error: 'Gemini API Error', details: errorText });
+    let groundingContext = { facts: [], rawContext: '', fetchTimeMs: 0 };
+    if (shouldSearch && mode === 'verified') {
+      groundingContext = await gatherGroundingContext(query) as any;
     }
 
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    
-    // Extract sources
-    const sources: any[] = [];
-    if (data.candidates?.[0]?.groundingMetadata?.groundingChunks) {
-      data.candidates[0].groundingMetadata.groundingChunks.forEach((gc: any) => {
-        if (gc.web) {
-          sources.push({ uri: gc.web.uri, title: gc.web.title });
+    const systemInstruction = buildSystemInstruction(persona, mode) + groundingContext.rawContext;
+    const config: any = {
+      systemInstruction,
+      temperature: mode === 'verified' ? 0.3 : 0.7,
+    };
+    if (shouldSearch) {
+      config.tools = [{ googleSearch: {} }];
+    }
+
+    // Build history
+    const contents = conversationHistory.slice(-10).map((msg: any) => ({
+      role: msg.role,
+      parts: [{ text: msg.text }]
+    }));
+    contents.push({ role: 'user', parts: [{ text: query }] });
+
+    // ── STAGE 2: GENERATE & STREAM ──
+    if (stream) {
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+
+      try {
+        const streamResponse = await ai.models.generateContentStream({
+          model: 'gemini-2.5-flash',
+          contents,
+          config
+        });
+
+        let fullText = '';
+        const sources: any[] = [];
+        let tokenUsage: any = undefined;
+
+        for await (const chunk of streamResponse) {
+          const chunkText = chunk.text || '';
+          if (chunkText) {
+            fullText += chunkText;
+            res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
+          }
+
+          if (chunk.candidates?.[0]?.groundingMetadata?.groundingChunks) {
+            chunk.candidates[0].groundingMetadata.groundingChunks.forEach((gc: any) => {
+              if (gc.web && !sources.some(s => s.uri === gc.web.uri)) {
+                sources.push({ uri: gc.web.uri, title: gc.web.title || gc.web.uri });
+              }
+            });
+          }
+          if (chunk.usageMetadata) {
+            tokenUsage = { 
+              input: chunk.usageMetadata.promptTokenCount || 0, 
+              output: chunk.usageMetadata.candidatesTokenCount || 0 
+            };
+          }
         }
-      });
-    }
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        response: text,
-        sources: sources,
-        metadata: {
-          engine: 'G-C-G-O Consensus Architecture',
-          model: 'gemini-2.5-flash'
+        // ── STAGE 3: VERIFY (Post-generation) ──
+        const verificationReport = runClaimVerification(fullText, groundingContext.facts as any);
+        
+        // Add pre-fetched sources to the final sources list
+        for (const fact of groundingContext.facts as any[]) {
+          if (fact.url && !sources.some(s => s.uri === fact.url)) {
+            sources.push({ uri: fact.url, title: `[${fact.source.toUpperCase()}] ${fact.title}` });
+          }
+        }
+
+        // Send final metadata
+        res.write(`data: ${JSON.stringify({ 
+          done: true, 
+          sources,
+          verificationReport,
+          tokenUsage,
+          responseTimeMs: Math.round(performance.now() - startTime)
+        })}\n\n`);
+        
+        return res.end();
+      } catch (err: any) {
+        console.error('Streaming error:', err);
+        res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+        return res.end();
+      }
+    } else {
+      // Non-streaming response
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents,
+        config
+      });
+
+      const fullText = response.text || '';
+      const sources: any[] = [];
+      if (response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
+        response.candidates[0].groundingMetadata.groundingChunks.forEach((gc: any) => {
+          if (gc.web && !sources.some(s => s.uri === gc.web.uri)) {
+            sources.push({ uri: gc.web.uri, title: gc.web.title || gc.web.uri });
+          }
+        });
+      }
+
+      const verificationReport = runClaimVerification(fullText, groundingContext.facts as any);
+      
+      for (const fact of groundingContext.facts as any[]) {
+        if (fact.url && !sources.some(s => s.uri === fact.url)) {
+          sources.push({ uri: fact.url, title: `[${fact.source.toUpperCase()}] ${fact.title}` });
         }
       }
-    });
+
+      return res.status(200).json({
+        text: fullText,
+        sources,
+        verificationReport,
+        responseTimeMs: Math.round(performance.now() - startTime)
+      });
+    }
 
   } catch (err: any) {
     console.error('API Error:', err);

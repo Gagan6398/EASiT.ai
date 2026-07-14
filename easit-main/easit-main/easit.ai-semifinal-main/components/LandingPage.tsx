@@ -40,10 +40,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                 <section className="w-full max-w-7xl mx-auto px-6 pt-20 pb-32 flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
                     <div className="flex-1 text-left animate-slide-up-fade-in" style={{ animationDelay: '0.2s' }}>
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#00F0FF]/30 bg-[#00F0FF]/10 text-[#00F0FF] text-xs font-mono font-medium mb-8">
-                            <Zap size={14} /> v2.0 Introducing G-C-G-O Engine
+                            <Zap size={14} /> v3.0 Introducing Multi-Source RAG Engine
                         </div>
                         <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1] mb-6">
-                            Hallucination-<br />Free<br /><span className="text-[#00F0FF]">Intelligence:</span><br />
+                            Search-<br />Verified<br /><span className="text-[#00F0FF]">Intelligence:</span><br />
                             Meet EASiT.
                         </h1>
                         <p className="text-lg text-gray-400 max-w-xl leading-relaxed mb-10">
@@ -119,45 +119,36 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                 <section className="w-full max-w-5xl mx-auto px-6 py-24 text-center">
                     <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">The Architecture of Truth</h2>
                     <p className="text-gray-400 max-w-2xl mx-auto mb-16">
-                        Our proprietary 4-stage consensus engine acts as a query manager, rigorous researcher, agent verifier, and unbiased judge, delivering absolute truth. If Easit can't verify it, it won't say it.
+                        Our proprietary 3-stage RAG verification pipeline fetches data, generates context-aware responses, and deterministically verifies claims against multiple sources.
                     </p>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
-                        {/* Generate */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                        {/* Gather */}
                         <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-[#00F0FF]/30 transition-colors group cursor-pointer">
                             <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6 text-blue-400 group-hover:scale-110 transition-transform">
-                                <Box size={24} />
+                                <Search size={24} />
                             </div>
                             <div className="text-xs font-mono text-blue-400 mb-2">PHASE 01</div>
-                            <h3 className="text-xl font-bold text-white mb-3">Generate</h3>
-                            <p className="text-sm text-gray-400">Initial source analysis and upward thinking mappings. Multiple baseline responses are generated simultaneously.</p>
+                            <h3 className="text-xl font-bold text-white mb-3">Gather</h3>
+                            <p className="text-sm text-gray-400">Pre-fetch verified facts from Wikipedia, Wikidata, and DuckDuckGo to establish a baseline of truth.</p>
                         </div>
-                        {/* Critique */}
+                        {/* Generate */}
                         <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-purple-500/30 transition-colors group cursor-pointer">
                             <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-6 text-purple-400 group-hover:scale-110 transition-transform">
                                 <BrainCircuit size={24} />
                             </div>
                             <div className="text-xs font-mono text-purple-400 mb-2">PHASE 02</div>
-                            <h3 className="text-xl font-bold text-white mb-3">Critique</h3>
-                            <p className="text-sm text-gray-400">Adversarial models critique the generated baselines for logical fallacies, biases, and factual inconsistencies.</p>
+                            <h3 className="text-xl font-bold text-white mb-3">Generate</h3>
+                            <p className="text-sm text-gray-400">Synthesize context-aware responses using advanced Gemini models with injected reference data and live search grounding.</p>
                         </div>
-                        {/* Ground */}
-                        <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-[#00F0FF]/30 transition-colors group cursor-pointer">
-                            <div className="w-12 h-12 rounded-xl bg-[#00F0FF]/10 flex items-center justify-center mb-6 text-[#00F0FF] group-hover:scale-110 transition-transform">
-                                <Link2 size={24} />
-                            </div>
-                            <div className="text-xs font-mono text-[#00F0FF] mb-2">PHASE 03</div>
-                            <h3 className="text-xl font-bold text-white mb-3">Ground</h3>
-                            <p className="text-sm text-gray-400">Real-time verification against authoritative databases and active web indices to anchor claims in reality.</p>
-                        </div>
-                        {/* Output */}
+                        {/* Verify & Output */}
                         <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-green-500/30 transition-colors group cursor-pointer">
                             <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-6 text-green-400 group-hover:scale-110 transition-transform">
-                                <LayoutDashboard size={24} />
+                                <CheckCircle2 size={24} />
                             </div>
-                            <div className="text-xs font-mono text-green-400 mb-2">PHASE 04</div>
-                            <h3 className="text-xl font-bold text-white mb-3">Output</h3>
-                            <p className="text-sm text-gray-400">Synthesizes final response with end-to-end confidence scores, citations, and complete reasoning traces.</p>
+                            <div className="text-xs font-mono text-green-400 mb-2">PHASE 03</div>
+                            <h3 className="text-xl font-bold text-white mb-3">Verify & Output</h3>
+                            <p className="text-sm text-gray-400">Deterministically extract claims and cross-check them against the gathered facts, providing a final confidence score.</p>
                         </div>
                     </div>
                 </section>
@@ -261,8 +252,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                             <Lock size={20} />
                         </div>
                         <div>
-                            <h4 className="text-white font-bold text-sm group-hover:text-purple-400 transition-colors">Ephemeral Audio Processing</h4>
-                            <p className="text-xs text-gray-500">Audio logs are processed in-memory and never stored. Absolute privacy, zero data retention on voice interactions.</p>
+                            <h4 className="text-white font-bold text-sm group-hover:text-purple-400 transition-colors">True E2E Encryption + Ephemeral Audio</h4>
+                            <p className="text-xs text-gray-500">Audio is ephemeral. Chat histories are fully encrypted on your device using Web Crypto API before saving.</p>
                         </div>
                     </div>
                 </section>
@@ -311,9 +302,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                         <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="md:col-span-2 bg-[#12141a] border border-gray-800 rounded-2xl p-8 relative overflow-hidden group hover:border-[#00F0FF]/30 transition-colors cursor-pointer">
                             <div className="relative z-10">
                                 <Link2 size={24} className="text-[#00F0FF] mb-6" />
-                                <h3 className="text-2xl font-bold text-white mb-4">Hallucination-Free Reliability</h3>
+                                <h3 className="text-2xl font-bold text-white mb-4">Search-Verified Reliability</h3>
                                 <p className="text-gray-400 text-sm max-w-sm mb-8">
-                                    Experience zero-trust AI. Every output undergoes rigorous cross-verification and grounding in real-time data sources before it reaches your screen. We prioritize factual accuracy over generative fluency. If Easit can't verify it, it won't say it.
+                                    Experience zero-trust AI. Every output undergoes rigorous cross-verification and grounding in real-time data sources before it reaches your screen. We prioritize factual accuracy over generative fluency.
                                 </p>
                             </div>
                             <div className="absolute right-0 bottom-0 w-2/3 h-2/3 opacity-40 group-hover:opacity-80 transition-opacity flex items-end justify-end p-4">

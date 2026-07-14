@@ -71,7 +71,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ user, onSignOut }) =
                         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
                             <div>
                                 <h3 className="font-medium text-text-dark">Deep Research Engine</h3>
-                                <p className="text-xs text-gray-500">Access the G-C-G-O Consensus Architecture for heavy research.</p>
+                                <p className="text-xs text-gray-500">Access the Multi-Source RAG Verification Engine for heavy research.</p>
                             </div>
                             <button onClick={() => navigate('/research')} className="px-4 py-2 bg-gold-light/40 text-[#CFA54D] text-sm font-medium rounded-lg hover:bg-gold-gradient/30 transition-colors">
                                 Open Engine

@@ -2,27 +2,34 @@
 
 export type Role = 'user' | 'model';
 
-export type QueryMode = 'quick' | 'consensus';
+export type QueryMode = 'quick' | 'verified';
 
 export interface Source {
   uri: string;
   title: string;
 }
 
-export interface AgentPerspective {
-  agent: 'gemini' | 'claude' | 'grok' | 'openai';
-  label: string;
-  contribution: string;
+export interface ClaimCheck {
+  claim: string;
+  verified: boolean;
+  matchedSource?: string;
 }
 
-export interface ConsensusMetadata {
+export interface VerificationMetadata {
   confidenceScore: number;
-  agentBreakdown: AgentPerspective[];
   verificationStatus: 'pending' | 'verified' | 'partial' | 'unverified';
   searchGrounded: boolean;
+  totalClaims: number;
+  verifiedClaims: number;
+  verificationRate: number;
+  claimChecks?: ClaimCheck[];
   tokenUsage?: { input: number; output: number };
   responseTimeMs: number;
+  factSourcesUsed: number; // How many free sources contributed data
 }
+
+// Legacy alias for backwards compatibility with existing components
+export type ConsensusMetadata = VerificationMetadata;
 
 export interface Message {
   id: string;
@@ -30,7 +37,7 @@ export interface Message {
   text: string;
   timestamp: string;
   groundingMetadata?: Source[];
-  consensusMetadata?: ConsensusMetadata;
+  consensusMetadata?: VerificationMetadata;
   isStreaming?: boolean;
   fromCache?: boolean;
 }
@@ -40,6 +47,7 @@ export interface Conversation {
   title: string;
   messages: Message[];
   createdAt: string;
+  encrypted?: boolean; // Flag for E2E encrypted conversations
 }
 
 export type Theme = 'light' | 'dark';
@@ -71,8 +79,7 @@ export interface PersonaSettings {
 
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
 
-// Add type definitions for the Google Identity Services client library
-// This allows for type-safe access to the `google` global object
+// Kept for backwards compatibility — no longer used for Google Identity
 declare global {
   const google: {
     accounts: {

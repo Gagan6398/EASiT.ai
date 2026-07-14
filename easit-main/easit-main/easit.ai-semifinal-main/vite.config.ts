@@ -15,10 +15,6 @@ export default defineConfig(({ mode }) => {
         minify: 'esbuild'
       },
       plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.VITE_GOOGLE_GENERATIVE_AI_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.VITE_GOOGLE_GENERATIVE_AI_KEY)
-      },
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),

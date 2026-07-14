@@ -1,21 +1,26 @@
 import type { User, Conversation } from '../types.ts';
-export interface ApiKey { id: string; key_value: string; created_at: string; }
 import { supabase } from './supabaseClient.ts';
+import { getEncryptionKey, encryptConversation, decryptConversation, isEncrypted } from './encryption.ts';
+
+export interface ApiKey { id: string; key_value: string; created_at: string; }
+
+// Helper for our internal engine to get an API key
+export function getApiKey(): string {
+    const localData = localStorage.getItem('easit-api-key');
+    if (localData) return localData;
+    return 'easit_live_guest'; // Fallback for MVP if not logged in
+}
 
 const apiService = {
     async googleAuth(): Promise<{ token: string; user: User }> {
-        // Always redirect to production URL — this is the one whitelisted in Google Cloud Console
         const productionUrl = 'https://easitai-semifinal-main.vercel.app';
         const redirectUrl = productionUrl + '/chat';
         
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
-            options: {
-                redirectTo: redirectUrl
-            }
+            options: { redirectTo: redirectUrl }
         });
         if (error) throw error;
-        // OAuth redirect happens automatically, so this is just a placeholder return
         return { token: 'oauth-pending', user: { name: 'Pending', email: 'pending' } };
     },
     
@@ -23,6 +28,9 @@ const apiService = {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw new Error(error.message);
         
+        // Auto-initialize E2E encryption key
+        await getEncryptionKey();
+
         return {
             token: data.session?.access_token || '',
             user: {
@@ -37,12 +45,13 @@ const apiService = {
         const { data, error } = await supabase.auth.signUp({ 
             email, 
             password,
-            options: {
-                data: { name }
-            }
+            options: { data: { name } }
         });
         if (error) throw new Error(error.message);
         
+        // Auto-initialize E2E encryption key
+        await getEncryptionKey();
+
         return {
             token: data.session?.access_token || '',
             user: {
@@ -55,7 +64,7 @@ const apiService = {
     async getConversations(): Promise<Conversation[]> {
         const { data: session } = await supabase.auth.getSession();
         if (!session.session) {
-             // Fallback for guest mode
+             // Guest mode
              try {
                  const localData = localStorage.getItem('easit-guest-conversations');
                  if (localData) return JSON.parse(localData);
@@ -70,22 +79,44 @@ const apiService = {
             
         if (error) throw new Error('Failed to load conversations: ' + error.message);
         
-        return data.map((row: any) => ({
-            id: row.id,
-            title: row.title,
-            messages: row.messages,
-            createdAt: row.created_at
-        }));
+        const key = await getEncryptionKey();
+        const results: Conversation[] = [];
+
+        for (const row of data) {
+            let messages = row.messages;
+            let encrypted = false;
+
+            if (isEncrypted(messages)) {
+                try {
+                    messages = await decryptConversation(messages, key);
+                    encrypted = true;
+                } catch (e) {
+                    console.warn(`[API] Failed to decrypt conversation ${row.id}`, e);
+                    messages = []; // Unreadable without key
+                }
+            }
+
+            results.push({
+                id: row.id,
+                title: row.title,
+                messages,
+                createdAt: row.created_at,
+                encrypted
+            });
+        }
+        
+        return results;
     },
     
     async saveConversation(conversation: Conversation): Promise<void> {
         const { data: session } = await supabase.auth.getSession();
+        
         if (!session.session) {
             // Guest mode
             const localData = localStorage.getItem('easit-guest-conversations');
             if (localData) {
                 try {
-                    let convs: Conversation[] = JSON.parse(localData);
+                    const convs: Conversation[] = JSON.parse(localData);
                     const index = convs.findIndex(c => c.id === conversation.id);
                     if (index >= 0) convs[index] = conversation;
                     else convs.unshift(conversation);
@@ -95,14 +126,17 @@ const apiService = {
             return;
         }
 
-        // Supabase mode
+        // Supabase mode (E2E Encrypted)
+        const key = await getEncryptionKey();
+        const encryptedMessages = await encryptConversation(conversation.messages, key);
+
         const { error } = await supabase
             .from('conversations')
             .upsert({
-                id: conversation.id.startsWith('conv-') ? undefined : conversation.id, // Supabase generates UUIDs
+                id: conversation.id.startsWith('conv-') ? undefined : conversation.id,
                 user_id: session.session.user.id,
                 title: conversation.title,
-                messages: conversation.messages,
+                messages: encryptedMessages, // Send the encrypted blob
                 created_at: conversation.createdAt
             });
             
@@ -114,6 +148,12 @@ const apiService = {
         if (!session.session) return [];
         const { data, error } = await supabase.from('api_keys').select('*').order('created_at', { ascending: false });
         if (error) throw new Error(error.message);
+        
+        // Store the newest key in local storage for the engine to use
+        if (data && data.length > 0) {
+            localStorage.setItem('easit-api-key', data[0].key_value);
+        }
+        
         return data as ApiKey[];
     },
 
@@ -121,8 +161,8 @@ const apiService = {
         const { data: session } = await supabase.auth.getSession();
         if (!session.session) throw new Error('Must be logged in to generate API key');
         
-        const randomString = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        const keyValue = `easit_live_${randomString}`;
+        // Use cryptographically secure random UUID
+        const keyValue = `easit_live_${crypto.randomUUID().replace(/-/g, '')}`;
         
         const { data, error } = await supabase.from('api_keys').insert({
             user_id: session.session.user.id,
@@ -130,6 +170,8 @@ const apiService = {
         }).select().single();
         
         if (error) throw new Error(error.message);
+        
+        localStorage.setItem('easit-api-key', keyValue);
         return data as ApiKey;
     },
 

@@ -186,7 +186,7 @@ export function SettingsModal({ settings, onUpdate, onClose }: SettingsModalProp
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">API Keys</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Use these keys to access the Easit G-C-G-O Engine from your own applications.</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Use these keys to access the Easit Multi-Source RAG Engine from your own applications.</p>
               </div>
               <button 
                 onClick={handleGenerateKey}
