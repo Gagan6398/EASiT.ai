@@ -119,7 +119,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                 <section className="w-full max-w-5xl mx-auto px-6 py-24 text-center">
                     <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">The Architecture of Truth</h2>
                     <p className="text-gray-400 max-w-2xl mx-auto mb-16">
-                        Our proprietary 3-stage RAG verification pipeline fetches data, generates context-aware responses, and deterministically verifies claims against multiple sources.
+                        Our proprietary 3-stage Chain-of-Verification (CoVe) pipeline generates drafts, extracts claims, and deterministically verifies them against live search data.
                     </p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
@@ -129,8 +129,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                                 <Search size={24} />
                             </div>
                             <div className="text-xs font-mono text-blue-400 mb-2">PHASE 01</div>
-                            <h3 className="text-xl font-bold text-white mb-3">Gather</h3>
-                            <p className="text-sm text-gray-400">Pre-fetch verified facts from Wikipedia, Wikidata, and DuckDuckGo to establish a baseline of truth.</p>
+                            <h3 className="text-xl font-bold text-white mb-3">Generate Draft</h3>
+                            <p className="text-sm text-gray-400">Synthesize context-aware responses using the world's best models from our OpenRouter marketplace.</p>
                         </div>
                         {/* Generate */}
                         <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-purple-500/30 transition-colors group cursor-pointer">
@@ -138,8 +138,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                                 <BrainCircuit size={24} />
                             </div>
                             <div className="text-xs font-mono text-purple-400 mb-2">PHASE 02</div>
-                            <h3 className="text-xl font-bold text-white mb-3">Generate</h3>
-                            <p className="text-sm text-gray-400">Synthesize context-aware responses using advanced Gemini models with injected reference data and live search grounding.</p>
+                            <h3 className="text-xl font-bold text-white mb-3">Extract & Verify</h3>
+                            <p className="text-sm text-gray-400">Extract factual claims and run independent verification checks using live Google Search Grounding.</p>
                         </div>
                         {/* Verify & Output */}
                         <div onClick={() => { window.scrollTo(0,0); navigate('/features'); }} className="bg-[#12141a] border border-gray-800 p-6 rounded-2xl hover:border-green-500/30 transition-colors group cursor-pointer">
@@ -147,8 +147,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                                 <CheckCircle2 size={24} />
                             </div>
                             <div className="text-xs font-mono text-green-400 mb-2">PHASE 03</div>
-                            <h3 className="text-xl font-bold text-white mb-3">Verify & Output</h3>
-                            <p className="text-sm text-gray-400">Deterministically extract claims and cross-check them against the gathered facts, providing a final confidence score.</p>
+                            <h3 className="text-xl font-bold text-white mb-3">Revise & Output</h3>
+                            <p className="text-sm text-gray-400">Automatically correct any hallucinated claims before the final response reaches the user, guaranteeing high confidence.</p>
                         </div>
                     </div>
                 </section>
