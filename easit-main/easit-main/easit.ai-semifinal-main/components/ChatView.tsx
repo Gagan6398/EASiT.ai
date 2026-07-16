@@ -13,6 +13,8 @@ interface ChatViewProps {
   setIsSearchActive: (active: boolean) => void;
   queryMode: QueryMode;
   setQueryMode: (mode: QueryMode) => void;
+  selectedModelId: string;
+  onSelectModel: (modelId: string) => void;
 }
 
 export const ChatView: React.FC<ChatViewProps> = ({ 
@@ -25,6 +27,8 @@ export const ChatView: React.FC<ChatViewProps> = ({
   setIsSearchActive,
   queryMode,
   setQueryMode,
+  selectedModelId,
+  onSelectModel,
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -140,6 +144,8 @@ export const ChatView: React.FC<ChatViewProps> = ({
         setIsSearchActive={setIsSearchActive}
         queryMode={queryMode}
         setQueryMode={setQueryMode}
+        selectedModelId={selectedModelId}
+        onSelectModel={onSelectModel}
       />
     </div>
   );

@@ -65,12 +65,12 @@ const CORE_IDENTITY = `You are EASIT.ai — an advanced AI assistant powered by 
 - You will NEVER generate harmful, misleading, or unverified information.
 
 ## HOW YOU WORK
-You use a 3-stage verification pipeline:
-1. GATHER — Before you respond, reference data from Wikipedia, Wikidata, and DuckDuckGo is fetched and injected into your context
-2. GENERATE — You produce your response using this reference data + Google Search grounding
-3. VERIFY — Your factual claims are cross-checked against the reference data by a separate verification system
+You use a 3-stage Chain-of-Verification (CoVe) pipeline:
+1. GENERATE — You produce your response with Google Search grounding (real-time web data)
+2. VERIFY — Your factual claims are independently fact-checked by a separate AI call (CoVe)
+3. REVISE — Any incorrect claims are automatically corrected before reaching the user
 
-This means you have REAL data to work from. Use it. Do NOT guess when reference data is available.`;
+This means your responses are verified AFTER generation. Use real data when available. Do NOT guess when reference data exists.`;
 
 const OUTPUT_FORMAT = `
 ## RESPONSE STRUCTURE
@@ -139,6 +139,10 @@ export interface GenerateOptions {
   enableSearch?: boolean;
   onChunk?: (partialText: string) => void;
   signal?: AbortSignal;
+  model?: string;         // Selected model ID (e.g., 'gemini-2.5-flash', 'openai/gpt-4o')
+  systemInstruction?: string;
+  mode?: string;
+  temperature?: number;
 }
 
 export interface ConsensusResult {
@@ -163,7 +167,8 @@ export async function generateWithConsensus(options: GenerateOptions): Promise<C
         conversationHistory: options.conversationHistory,
         persona: options.persona,
         enableSearch: options.enableSearch,
-        stream: false
+        stream: false,
+        model: options.model || 'gemini-2.5-flash'
       }),
       signal: options.signal
     });
@@ -189,7 +194,8 @@ export async function generateWithConsensus(options: GenerateOptions): Promise<C
       conversationHistory: options.conversationHistory,
       persona: options.persona,
       enableSearch: options.enableSearch,
-      stream: true
+      stream: true,
+      model: options.model || 'gemini-2.5-flash'
     }),
     signal: options.signal
   });

@@ -33,21 +33,29 @@ export const PricingPage: React.FC = () => {
                     <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Simple, fair pricing.</h2>
                     <p className="text-gray-400 text-lg">Choose the plan that fits your research needs.</p>
                 </div>
-                <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-20">
+                <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-20">
                     <PricingCard 
                         title="Free User" 
                         price="$0"
                         buttonText="Get Started"
-                        features={["25 Verified Searches/day", "Unlimited standard voice", "History syncing", "All persona settings", "Community support"]}
+                        features={["25 Verified Searches/day", "Free Gemini Models", "History syncing", "All persona settings", "Community support"]}
                         onSelect={() => navigate('/auth')}
                     />
                     <PricingCard 
-                        title="Pro Account" 
+                        title="Easit Credits" 
+                        price="$10"
+                        priceInINR={999}
+                        buttonText="Buy Credits"
+                        highlight
+                        features={["Pay-as-you-go premium models", "Access GPT-4o, Claude 3.5, etc.", "Credits never expire", "Unlimited Verified Searches", "API Access (Early)"]}
+                        onSelect={handleProUpgrade}
+                    />
+                    <PricingCard 
+                        title="Pro Monthly" 
                         price="$20"
                         priceInINR={1999}
                         buttonText="Upgrade to Pro"
-                        highlight
-                        features={["Unlimited Verified Searches", "Priority server access", "Custom persona templates", "API Access (Early)", "Direct support"]}
+                        features={["Unlimited Verified Searches", "Includes $25 in monthly credits", "Priority server access", "Custom persona templates", "Direct support"]}
                         onSelect={handleProUpgrade}
                     />
                 </div>

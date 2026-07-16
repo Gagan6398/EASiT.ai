@@ -40,6 +40,8 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [isSettingsModalVisible, setSettingsModalVisible] = useState(false);
+  const [selectedModelId, setSelectedModelId] = useLocalStorage<string>('easit-model-id', 'gemini-2.5-flash');
+
   
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -246,6 +248,7 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
               enableSearch: shouldSearch,
               mode: effectiveMode,
               temperature: effectiveMode === 'consensus' ? 0.3 : 0.7,
+              model: selectedModelId,
               signal: abortController.signal,
               onChunk: (partialText: string) => {
                 // Update the streaming message in real-time
@@ -445,6 +448,8 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
         setIsSearchActive={setIsSearchActive}
         queryMode={queryMode}
         setQueryMode={setQueryMode}
+        selectedModelId={selectedModelId}
+        onSelectModel={setSelectedModelId}
       />;
     }
     return <WelcomeScreen onNewConversation={handleNewConversation} />;

@@ -4,6 +4,7 @@ import { useGeminiLive } from '../hooks/useGeminiLive.ts';
 import { GeminiLiveStatus } from '../types.ts';
 import type { QueryMode } from '../types.ts';
 import { classifyQuery } from '../services/gcgoEngine.ts';
+import { ModelSelector } from './ModelSelector.tsx';
 
 interface ChatInputProps {
   onSendMessage: (text: string) => void;
@@ -14,6 +15,8 @@ interface ChatInputProps {
   setIsSearchActive: (active: boolean) => void;
   queryMode: QueryMode;
   setQueryMode: (mode: QueryMode) => void;
+  selectedModelId: string;
+  onSelectModel: (modelId: string) => void;
 }
 
 const MicButton: React.FC<{ status: GeminiLiveStatus; onClick: () => void }> = ({ status, onClick }) => {
@@ -73,7 +76,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   isSearchActive,
   setIsSearchActive,
   queryMode,
-  setQueryMode
+  setQueryMode,
+  selectedModelId,
+  onSelectModel
 }) => {
   const [inputText, setInputText] = useState('');
   const { status, userTranscript, aiTranscript, startSession, stopSession, error } = useGeminiLive();
@@ -194,6 +199,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     <div className="p-4 bg-white shadow-sm dark:bg-gray-800/20 backdrop-blur-lg border-t border-gray-100 dark:border-gray-700/50">
         {/* ── Mode Selector + Presets Row ── */}
         <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 no-scrollbar max-w-4xl mx-auto">
+            {/* Model Selector */}
+            <div className="flex-shrink-0 mr-1">
+              <ModelSelector 
+                selectedModelId={selectedModelId} 
+                onSelectModel={onSelectModel} 
+              />
+            </div>
+
             {/* Mode Toggle */}
             <div className="flex items-center rounded-full border border-gray-100 overflow-hidden flex-shrink-0">
               <button

@@ -79,6 +79,25 @@ export interface PersonaSettings {
 
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
 
+// ─── Model Marketplace Types ───
+
+export interface ModelInfo {
+  id: string;               // e.g., 'gemini-2.5-flash', 'openai/gpt-4o'
+  name: string;             // Display name: "Gemini 2.5 Flash"
+  provider: string;         // "google", "openai", "anthropic", "meta", etc.
+  tier: 'free' | 'premium'; // Free (Gemini) vs Premium (OpenRouter)
+  inputPricePer1k: number;  // Cost per 1K input tokens in cents (after 1.5x markup)
+  outputPricePer1k: number; // Cost per 1K output tokens in cents (after 1.5x markup)
+  contextWindow: number;    // Max context window
+  description: string;      // Short description
+  icon?: string;            // Emoji or icon
+}
+
+export interface UserCredits {
+  balanceCents: number;
+  totalSpentCents: number;
+}
+
 // Kept for backwards compatibility — no longer used for Google Identity
 declare global {
   const google: {
