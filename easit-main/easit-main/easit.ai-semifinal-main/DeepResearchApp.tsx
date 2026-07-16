@@ -5,6 +5,7 @@ import type { User, Source, ConsensusMetadata, PersonaSettings } from './types.t
 import { buildSystemInstruction, generateWithConsensus } from './services/gcgoEngine.ts';
 import { MarkdownRenderer } from './components/MarkdownRenderer.tsx';
 import { useLocalStorage } from './hooks/useLocalStorage.ts';
+import { ModelSelector } from './components/ModelSelector.tsx';
 
 interface DeepResearchAppProps {
     user: User;
@@ -120,6 +121,7 @@ const DeepResearchApp: React.FC<DeepResearchAppProps> = ({ user }) => {
     const [results, setResults] = useState<ResearchResult[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [personaSettings] = useLocalStorage<PersonaSettings>('easit-persona', { tone: 'friendly', verbosity: 'balanced', style: 'casual' });
+    const [selectedModelId, setSelectedModelId] = useLocalStorage<string>('easit-selected-model', 'gemini-2.5-pro');
     const navigate = useNavigate();
     const resultsEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -170,6 +172,7 @@ const DeepResearchApp: React.FC<DeepResearchAppProps> = ({ user }) => {
                 enableSearch: true,
                 mode: 'consensus',
                 temperature: 0.2,
+                model: selectedModelId,
                 onChunk: (partialText: string) => {
                     setStreamingText(partialText);
                 },
@@ -369,6 +372,9 @@ const DeepResearchApp: React.FC<DeepResearchAppProps> = ({ user }) => {
 
             {/* Input Area */}
             <div className="p-4 bg-cream-bg border-t border-gray-100 pb-8">
+                <div className="max-w-4xl mx-auto flex items-center mb-3">
+                    <ModelSelector selectedModelId={selectedModelId} onSelectModel={setSelectedModelId} />
+                </div>
                 <div className="max-w-4xl mx-auto relative group">
                     <div className="absolute -inset-1 bg-gradient-to-r from-brand-blue to-brand-purple rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                     <div className="relative flex items-center bg-white border border-gray-200 rounded-2xl p-2 shadow-lg">

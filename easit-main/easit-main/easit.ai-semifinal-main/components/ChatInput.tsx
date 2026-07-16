@@ -126,22 +126,31 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const applyPreset = (preset: string) => {
       const currentText = inputText.trim();
       
-      if (!currentText) {
+      const PRESETS = {
+          summarize: 'Please provide a concise summary of the following:\n\n',
+          explain: 'Explain this in simple terms that even a non-expert could understand:\n\n',
+          research: 'Perform deep research on this topic using Google Search and provide a detailed verified report with the full G-C-G-O consensus analysis:\n\n',
+          verify: 'Verify the following claim for accuracy and potential hallucinations using all available tools. Cross-reference with multiple sources:\n\n'
+      };
+
+      const isJustPreset = Object.values(PRESETS).some(p => p.trim() === currentText);
+
+      if (!currentText || isJustPreset) {
           switch(preset) {
               case 'summarize':
-                  setInputText('Please provide a concise summary of the following:\n\n');
+                  setInputText(PRESETS.summarize);
                   break;
               case 'explain':
-                  setInputText('Explain this in simple terms that even a non-expert could understand:\n\n');
+                  setInputText(PRESETS.explain);
                   break;
               case 'research':
                   setIsSearchActive(true);
                   setQueryMode('consensus');
-                  setInputText('Perform deep research on this topic using Google Search and provide a detailed verified report with the full G-C-G-O consensus analysis:\n\n');
+                  setInputText(PRESETS.research);
                   break;
               case 'verify':
                   setIsSearchActive(true);
-                  setInputText('Verify the following claim for accuracy and potential hallucinations using all available tools. Cross-reference with multiple sources:\n\n');
+                  setInputText(PRESETS.verify);
                   break;
           }
           return;
@@ -150,19 +159,19 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       let finalPrompt = currentText;
       switch(preset) {
           case 'summarize':
-              finalPrompt = `Please provide a concise summary of the following:\n\n${finalPrompt}`;
+              finalPrompt = `${PRESETS.summarize}${finalPrompt}`;
               break;
           case 'explain':
-              finalPrompt = `Explain this in simple terms that even a non-expert could understand:\n\n${finalPrompt}`;
+              finalPrompt = `${PRESETS.explain}${finalPrompt}`;
               break;
           case 'research':
               setIsSearchActive(true);
               setQueryMode('consensus');
-              finalPrompt = `Perform deep research on this topic using Google Search and provide a detailed verified report with the full G-C-G-O consensus analysis:\n\n${finalPrompt}`;
+              finalPrompt = `${PRESETS.research}${finalPrompt}`;
               break;
           case 'verify':
               setIsSearchActive(true);
-              finalPrompt = `Verify the following claim for accuracy and potential hallucinations using all available tools. Cross-reference with multiple sources:\n\n${finalPrompt}`;
+              finalPrompt = `${PRESETS.verify}${finalPrompt}`;
               break;
       }
       
@@ -198,7 +207,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   return (
     <div className="p-4 bg-white shadow-sm dark:bg-gray-800/20 backdrop-blur-lg border-t border-gray-100 dark:border-gray-700/50">
         {/* ── Mode Selector + Presets Row ── */}
-        <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 no-scrollbar max-w-4xl mx-auto">
+        <div className="flex flex-wrap items-center gap-2 mb-3 pb-1 max-w-4xl mx-auto">
             {/* Model Selector */}
             <div className="flex-shrink-0 mr-1">
               <ModelSelector 
