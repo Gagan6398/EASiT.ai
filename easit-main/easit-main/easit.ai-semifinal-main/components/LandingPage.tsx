@@ -53,8 +53,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenSig
                             <button onClick={onOpenSignup} className="bg-[#00F0FF] text-black px-8 py-4 rounded-lg font-bold text-lg shadow-[0_0_20px_rgba(0,240,255,0.2)] hover:shadow-[0_0_30px_rgba(0,240,255,0.4)] transition-all flex items-center gap-2 w-full sm:w-auto justify-center">
                                 Get Started Now <ArrowRight size={20} />
                             </button>
-                            <button onClick={() => document.getElementById('research')?.scrollIntoView({ behavior: 'smooth' })} className="border border-gray-700 bg-gray-900/50 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-800 transition-all flex items-center gap-2 w-full sm:w-auto justify-center">
-                                <Play size={20} /> Watch Demo
+                            <button onClick={onEnterAsGuest} className="border border-gray-700 bg-gray-900/50 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-800 transition-all flex items-center gap-2 w-full sm:w-auto justify-center">
+                                Continue as Guest
                             </button>
                         </div>
                     </div>
