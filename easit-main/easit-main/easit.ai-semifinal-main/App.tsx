@@ -127,7 +127,7 @@ const App: React.FC = () => {
                                 user={user}
                                 onOpenLogin={() => { setAuthModalMode('login'); setIsAuthModalOpen(true); }} 
                                 onOpenSignup={() => { setAuthModalMode('signup'); setIsAuthModalOpen(true); }} 
-                                onGoToChat={() => navigate('/chat')}
+                                onGoToChat={() => window.open('/chat', '_blank')}
                                 onSignOut={handleSignOut}
                             />
                             {isAuthModalOpen && (
