@@ -3,8 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import { verifyResponse as runClaimVerification } from '../services/claimVerifier.js';
 import { buildSystemInstruction, classifyQuery } from '../services/gcgoEngine.js';
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // ─── CoVe (Chain-of-Verification) Prompts ───
