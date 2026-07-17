@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import posthog from 'posthog-js';
 
 const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
