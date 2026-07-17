@@ -1,4 +1,4 @@
-import type { Message, ConnectionStatus } from '../types';
+import type { Message, ConnectionStatus } from '../types.js';
 
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';

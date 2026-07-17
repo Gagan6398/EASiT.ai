@@ -6,7 +6,7 @@
  * offline fallback for cached responses.
  */
 
-import type { ConsensusResult } from './gcgoEngine';
+import type { ConsensusResult } from './gcgoEngine.js';
 
 interface CacheEntry {
   result: ConsensusResult;
