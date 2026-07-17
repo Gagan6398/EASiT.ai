@@ -11,7 +11,7 @@ export const PricingPage: React.FC = () => {
 
     const handleProUpgrade = () => {
         let stripeUrl = 'https://buy.stripe.com/test_00waEYd4Gaye6thgUMasg00';
-        if (user && user.email && user.email !== 'guest@solveearn.com') {
+        if (user && user.email) {
             stripeUrl += `?prefilled_email=${encodeURIComponent(user.email)}`;
         }
         window.location.href = stripeUrl;

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sun, Moon, PanelLeft, LogOut, User as UserIcon, Settings, Info, Shield, Mail, Sliders, WifiOff, RefreshCw, Save, MessageSquarePlus } from 'lucide-react';
+import { Sun, Moon, PanelLeft, LogOut, User as UserIcon, Settings, Info, Shield, Mail, Sliders, WifiOff, RefreshCw, Save, MessageSquarePlus, CreditCard } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme.ts';
 import type { User, ConnectionStatus } from '../types.ts';
 
@@ -125,6 +126,13 @@ export const TopBar: React.FC<TopBarProps> = ({ user, onSignOut, onToggleSidebar
         <ConnectionBadge status={connectionStatus} />
       </div>
       <div className="flex items-center gap-3">
+        <Link
+          to="/pricing"
+          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#CFA54D]/20 to-[#B8860B]/20 text-[#CFA54D] hover:from-[#CFA54D]/30 hover:to-[#B8860B]/30 transition-all text-xs font-bold border border-[#CFA54D]/30"
+          title="Buy Credits"
+        >
+            <CreditCard size={14} /> Buy Credits
+        </Link>
         <button
           onClick={onNewConversation}
           className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"

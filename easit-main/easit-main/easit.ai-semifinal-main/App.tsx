@@ -35,10 +35,9 @@ const App: React.FC = () => {
     }, [location]);
 
     useEffect(() => {
-        // 1. Sync initial session on page load
+        // Sync initial session on page load
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session?.user) {
-                // A real Supabase session exists — ALWAYS override any local state (including guest)
                 const newUser: User = {
                     name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
                     email: session.user.email || '',
@@ -54,10 +53,9 @@ const App: React.FC = () => {
                     });
                 }
             }
-            // If no session, leave current local state as-is (could be guest or null)
         });
 
-        // 2. Listen to auth state changes (Google OAuth redirect, email login, sign out)
+        // Listen to auth state changes (Google OAuth redirect, email login, sign out)
         const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
             if (session?.user) {
                 const newUser: User = {
@@ -100,20 +98,6 @@ const App: React.FC = () => {
         navigate('/');
     };
 
-    const handleGuestLogin = () => {
-        const guestUser: User = {
-            name: "Easit Guest",
-            email: "guest@solveearn.com",
-            picture: undefined
-        };
-        setUser(guestUser);
-        setJwt("guest-demo-token");
-        
-        posthog.capture('guest_login');
-        
-        navigate('/chat');
-    };
-
     const handleLoginSuccess = (newUser: User, token: string) => {
         setUser(newUser);
         setJwt(token);
@@ -134,25 +118,26 @@ const App: React.FC = () => {
                 </div>
             }>
                 <Routes>
+                {/* Landing page always visible — shows auth-aware UI */}
                 <Route 
                     path="/" 
                     element={
-                        user ? <Navigate to="/chat" replace /> : (
-                            <>
-                                <LandingPage 
-                                    onOpenLogin={() => { setAuthModalMode('login'); setIsAuthModalOpen(true); }} 
-                                    onOpenSignup={() => { setAuthModalMode('signup'); setIsAuthModalOpen(true); }} 
-                                    onEnterAsGuest={handleGuestLogin} 
+                        <>
+                            <LandingPage 
+                                user={user}
+                                onOpenLogin={() => { setAuthModalMode('login'); setIsAuthModalOpen(true); }} 
+                                onOpenSignup={() => { setAuthModalMode('signup'); setIsAuthModalOpen(true); }} 
+                                onGoToChat={() => navigate('/chat')}
+                                onSignOut={handleSignOut}
+                            />
+                            {isAuthModalOpen && (
+                                <AuthPage 
+                                    initialMode={authModalMode}
+                                    onLoginSuccess={(u, t) => { setIsAuthModalOpen(false); handleLoginSuccess(u, t); }} 
+                                    onGoBack={() => setIsAuthModalOpen(false)} 
                                 />
-                                {isAuthModalOpen && (
-                                    <AuthPage 
-                                        initialMode={authModalMode}
-                                        onLoginSuccess={(u, t) => { setIsAuthModalOpen(false); handleLoginSuccess(u, t); }} 
-                                        onGoBack={() => setIsAuthModalOpen(false)} 
-                                    />
-                                )}
-                            </>
-                        )
+                            )}
+                        </>
                     } 
                 />
                 <Route path="/about" element={<AboutPage />} />

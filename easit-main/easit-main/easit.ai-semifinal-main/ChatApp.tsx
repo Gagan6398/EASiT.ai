@@ -117,11 +117,8 @@ const ChatApp: React.FC<ChatAppProps> = ({ user, onSignOut }) => {
     loadConversations();
   }, [loadConversations]);
   
-  useEffect(() => {
-      if (!isLoading && user.email === 'guest@solveearn.com') {
-          localStorage.setItem('easit-guest-conversations', JSON.stringify(conversations));
-      }
-  }, [conversations, user, isLoading]);
+
+
 
   // Cleanup abort controller on unmount
   useEffect(() => {
