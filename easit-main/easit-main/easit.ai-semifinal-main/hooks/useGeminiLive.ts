@@ -72,22 +72,39 @@ export const useGeminiLive = () => {
     onTurnCompleteCallbackRef.current = onTurnComplete;
     
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaStreamRef.current = stream;
+      const fallbackEnv = (import.meta as any).env?.VITE_GEMINI_FALLBACK_KEYS || (process.env as any)?.GEMINI_FALLBACK_KEYS || (window as any)?.process?.env?.GEMINI_FALLBACK_KEYS || "";
+      const fallbackList = fallbackEnv.split(',').map((k: string) => k.trim()).filter(Boolean);
       
-      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-      inputAudioContextRef.current = new AudioContextClass({ sampleRate: 16000 });
-      outputAudioContextRef.current = new AudioContextClass({ sampleRate: 24000 });
-      nextStartTimeRef.current = 0;
+      const geminiKeys = Array.from(new Set([
+        (import.meta as any).env?.VITE_GOOGLE_GENERATIVE_AI_KEY || (process.env as any)?.API_KEY || (window as any)?.process?.env?.API_KEY,
+        ...fallbackList
+      ].filter(Boolean))) as string[];
 
-      // Strictly obtain API key from environment variable as per guidelines.
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      
-      sessionPromiseRef.current = ai.live.connect({
+      let connected = false;
+      let lastError: any;
+
+      for (const apiKey of geminiKeys) {
+        try {
+          if (!mediaStreamRef.current) {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaStreamRef.current = stream;
+          }
+          
+          if (!inputAudioContextRef.current || inputAudioContextRef.current.state === 'closed') {
+            const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+            inputAudioContextRef.current = new AudioContextClass({ sampleRate: 16000 });
+            outputAudioContextRef.current = new AudioContextClass({ sampleRate: 24000 });
+            nextStartTimeRef.current = 0;
+          }
+
+          const ai = new GoogleGenAI({ apiKey });
+          
+          sessionPromiseRef.current = ai.live.connect({
         model: 'gemini-2.5-flash-native-audio-preview-09-2025',
         callbacks: {
           onopen: () => {
             if (!inputAudioContextRef.current) return;
+            const stream = mediaStreamRef.current!;
             const source = inputAudioContextRef.current.createMediaStreamSource(stream);
             const scriptProcessor = inputAudioContextRef.current.createScriptProcessor(4096, 1, 1);
             scriptProcessorRef.current = scriptProcessor;
@@ -165,10 +182,12 @@ export const useGeminiLive = () => {
             }
           },
           onerror: (e: ErrorEvent) => {
-            console.error('Gemini Live API Error:', e);
-            setError('Connection error. Please try again.');
-            setStatus(GeminiLiveStatus.ERROR);
-            cleanup();
+            if (connected) {
+              console.error('Gemini Live API Error:', e);
+              setError('Connection error. Please try again.');
+              setStatus(GeminiLiveStatus.ERROR);
+              cleanup();
+            }
           },
           onclose: (e: CloseEvent) => {
             stopSession();
@@ -182,7 +201,19 @@ export const useGeminiLive = () => {
           speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Zephyr' } } },
         },
       });
-      await sessionPromiseRef.current;
+          await sessionPromiseRef.current;
+          connected = true;
+          break; // Connected successfully
+        } catch (err: any) {
+          console.warn('Live API connection failed with key, trying backup...', err);
+          lastError = err;
+          if (!connected) cleanup(); // Clean up before trying next key
+        }
+      }
+
+      if (!connected) {
+        throw lastError || new Error("All API keys failed to connect.");
+      }
     } catch (err: any) {
       console.error('Failed to start session:', err);
       setError('Could not access microphone or connection failed.');

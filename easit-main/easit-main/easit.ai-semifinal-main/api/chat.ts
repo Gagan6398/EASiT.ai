@@ -88,10 +88,31 @@ export default async function handler(req: any, res: any) {
     }
 
     // ── ROUTE: GEMINI (Free Models) ──
-    const geminiKey = process.env.GEMINI_API_KEY || process.env.VITE_GOOGLE_GENERATIVE_AI_KEY;
-    if (!geminiKey) return res.status(500).json({ error: 'Server configuration error: Missing Gemini API Key' });
+    const fallbackEnv = process.env.GEMINI_FALLBACK_KEYS || process.env.VITE_GEMINI_FALLBACK_KEYS || "";
+    const fallbackList = fallbackEnv.split(',').map(k => k.trim()).filter(Boolean);
+    
+    const geminiKeys = Array.from(new Set([
+      process.env.GEMINI_API_KEY || process.env.VITE_GOOGLE_GENERATIVE_AI_KEY,
+      ...fallbackList
+    ].filter(Boolean))) as string[];
 
-    const ai = new GoogleGenAI({ apiKey: geminiKey });
+    if (geminiKeys.length === 0) return res.status(500).json({ error: 'Server configuration error: Missing Gemini API Key' });
+
+    const executeWithRetry = async (operation: (aiInstance: any) => Promise<any>) => {
+      let lastError: any;
+      for (const key of geminiKeys) {
+        try {
+          const aiInstance = new GoogleGenAI({ apiKey: key });
+          return await operation(aiInstance);
+        } catch (error: any) {
+          console.warn(`Gemini API error with a key, trying backup... Error: ${error?.message || error}`);
+          lastError = error;
+        }
+      }
+      throw lastError;
+    };
+
+    const ai = new GoogleGenAI({ apiKey: geminiKeys[0] });
 
     // ── STAGE 1: CLASSIFY & CONFIGURE ──
     const classification = classifyQuery(query);
@@ -114,7 +135,7 @@ export default async function handler(req: any, res: any) {
       res.setHeader('Connection', 'keep-alive');
 
       try {
-        const streamResponse = await ai.models.generateContentStream({ model, contents, config });
+        const streamResponse = await executeWithRetry((aiInstance) => aiInstance.models.generateContentStream({ model, contents, config }));
 
         let fullText = '';
         const sources: any[] = [];
@@ -143,7 +164,7 @@ export default async function handler(req: any, res: any) {
 
         if (coveEnabled && mode === 'verified' && fullText.length > 100) {
           try {
-            verificationReport = await runCoVePipeline(ai, model, fullText);
+            verificationReport = await runCoVePipeline(executeWithRetry, model, fullText);
             
             // If CoVe produced a revised response, stream the correction
             if (verificationReport.revisedText && verificationReport.revisedText !== fullText) {
@@ -170,7 +191,7 @@ export default async function handler(req: any, res: any) {
       }
     } else {
       // Non-streaming
-      const response = await ai.models.generateContent({ model, contents, config });
+      const response = await executeWithRetry((aiInstance) => aiInstance.models.generateContent({ model, contents, config }));
       const fullText = response.text || '';
       const sources: any[] = [];
       if (response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
@@ -183,7 +204,7 @@ export default async function handler(req: any, res: any) {
 
       let verificationReport: any = { totalClaims: 0, verifiedClaims: 0, unverifiedClaims: 0, verificationRate: 100, claims: [], adjustedConfidence: 75 };
       if (coveEnabled && fullText.length > 100) {
-        try { verificationReport = await runCoVePipeline(ai, model, fullText); } catch (e) { /* fallback */ }
+        try { verificationReport = await runCoVePipeline(executeWithRetry, model, fullText); } catch (e) { /* fallback */ }
       }
 
       return res.status(200).json({
@@ -203,15 +224,15 @@ export default async function handler(req: any, res: any) {
 
 // ─── CoVe Pipeline (3-Stage Verification) ───
 
-async function runCoVePipeline(ai: any, model: string, responseText: string) {
+async function runCoVePipeline(executeWithRetry: any, model: string, responseText: string) {
   const verificationModel = 'gemini-2.5-flash'; // Always use flash for verification (fast + free)
 
   // Stage 1: Extract claims
-  const claimsResponse = await ai.models.generateContent({
+  const claimsResponse = await executeWithRetry((aiInstance: any) => aiInstance.models.generateContent({
     model: verificationModel,
     contents: [{ role: 'user', parts: [{ text: COVE_EXTRACT_CLAIMS_PROMPT + responseText }] }],
     config: { temperature: 0.1 }
-  });
+  }));
 
   let claims: string[] = [];
   try {
@@ -233,11 +254,11 @@ async function runCoVePipeline(ai: any, model: string, responseText: string) {
     const question = `Is the following statement factually accurate? "${claim}" Answer with TRUE, FALSE, or UNCERTAIN, followed by a brief explanation.`;
     
     try {
-      const verifyResponse = await ai.models.generateContent({
+      const verifyResponse = await executeWithRetry((aiInstance: any) => aiInstance.models.generateContent({
         model: verificationModel,
         contents: [{ role: 'user', parts: [{ text: COVE_VERIFY_CLAIM_PROMPT + question }] }],
         config: { temperature: 0.1 }
-      });
+      }));
       
       const answer = (verifyResponse.text || '').trim();
       const isVerified = answer.toUpperCase().startsWith('TRUE');
@@ -269,11 +290,11 @@ async function runCoVePipeline(ai: any, model: string, responseText: string) {
       .replace('{VERIFICATIONS}', verificationsBlock);
 
     try {
-      const reviseResponse = await ai.models.generateContent({
+      const reviseResponse = await executeWithRetry((aiInstance: any) => aiInstance.models.generateContent({
         model: verificationModel,
         contents: [{ role: 'user', parts: [{ text: revisePrompt }] }],
         config: { temperature: 0.2 }
-      });
+      }));
       revisedText = (reviseResponse.text || '').trim();
     } catch { /* keep original */ }
   }
