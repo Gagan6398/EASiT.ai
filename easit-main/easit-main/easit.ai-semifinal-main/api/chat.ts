@@ -123,6 +123,33 @@ export default async function handler(req: any, res: any) {
       throw lastError;
     };
 
+    const executeStreamWithRetry = async function* (operation: (aiInstance: any) => any) {
+      let lastError: any;
+      for (const key of geminiKeys) {
+        try {
+          const aiInstance = new GoogleGenAI({ apiKey: key });
+          const stream = await operation(aiInstance);
+          const iterator = stream[Symbol.asyncIterator]();
+          const firstResult = await iterator.next(); // Catches auth/quota errors here!
+          
+          if (!firstResult.done) {
+            yield firstResult.value;
+          }
+          
+          while (true) {
+            const result = await iterator.next();
+            if (result.done) break;
+            yield result.value;
+          }
+          return;
+        } catch (error: any) {
+          console.warn(`Gemini API stream error with a key, trying backup... Error: ${error?.message || error}`);
+          lastError = error;
+        }
+      }
+      throw lastError;
+    };
+
     const ai = new GoogleGenAI({ apiKey: geminiKeys[0] });
 
     // ── STAGE 1: CLASSIFY & CONFIGURE ──
@@ -146,7 +173,7 @@ export default async function handler(req: any, res: any) {
       res.setHeader('Connection', 'keep-alive');
 
       try {
-        const streamResponse = await executeWithRetry((aiInstance) => aiInstance.models.generateContentStream({ model, contents, config }));
+        const streamResponse = executeStreamWithRetry((aiInstance) => aiInstance.models.generateContentStream({ model, contents, config }));
 
         let fullText = '';
         const sources: any[] = [];
