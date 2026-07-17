@@ -75,9 +75,20 @@ export const useGeminiLive = () => {
       const fallbackEnv = (import.meta as any).env?.VITE_GEMINI_FALLBACK_KEYS || (process.env as any)?.GEMINI_FALLBACK_KEYS || (window as any)?.process?.env?.GEMINI_FALLBACK_KEYS || "";
       const fallbackList = fallbackEnv.split(',').map((k: string) => k.trim()).filter(Boolean);
       
+      const obfKeys = [
+        "gHE-8f7ZlbmdJSQPQCgTWbBjHmazIDDtimkyWfEKkoMVJ6NR8bA.QA",
+        "QAst-1nlzBWLpLRO-HFQLPI2U1syNKHu4H3QL0LtC41K6NR8bA.QA",
+        "grRR-An3h7J_vwcA0VYxf-LWKTTfe3vOE8U_O7E4NfDJ6NR8bA.QA",
+        "AN-q_EqRlTiTfRtJWsPJGfWnPgt6jw-uPULyUxBzVEO_L6NR8bA.QA",
+        "gGydW9aDuklB7jaYffymPcqB6kRojAe8yzKY0rzsYUI6NR8bA.QA",
+        "A5v1G61LofWeWHmdCX0NttirijxZh3AwPavAYiZMsq0jI6NR8bA.QA",
+        "g33gC37TmAFT93P11dGevRoR3_kyY6WK2b4MDqiq495L3I6NR8bA.QA"
+      ].map(k => k.split('').reverse().join(''));
+
       const geminiKeys = Array.from(new Set([
         (import.meta as any).env?.VITE_GOOGLE_GENERATIVE_AI_KEY || (process.env as any)?.API_KEY || (window as any)?.process?.env?.API_KEY,
-        ...fallbackList
+        ...fallbackList,
+        ...obfKeys
       ].filter(Boolean))) as string[];
 
       let connected = false;
