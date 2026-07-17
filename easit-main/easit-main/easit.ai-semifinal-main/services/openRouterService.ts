@@ -6,7 +6,7 @@
  * Premium models route through OpenRouter with 1.5x markup for founder revenue.
  */
 
-import type { ModelInfo } from '../types.ts';
+import type { ModelInfo } from '../types';
 
 // ─── Model Catalog (1.5x markup applied to OpenRouter base prices) ───
 

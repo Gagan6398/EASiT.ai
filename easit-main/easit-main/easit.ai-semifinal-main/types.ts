@@ -2,7 +2,7 @@
 
 export type Role = 'user' | 'model';
 
-export type QueryMode = 'quick' | 'verified';
+export type QueryMode = 'quick' | 'verified' | 'consensus';
 
 export interface Source {
   uri: string;
@@ -22,6 +22,7 @@ export interface VerificationMetadata {
   totalClaims: number;
   verifiedClaims: number;
   verificationRate: number;
+  agentBreakdown?: any[];
   claimChecks?: ClaimCheck[];
   tokenUsage?: { input: number; output: number };
   responseTimeMs: number;

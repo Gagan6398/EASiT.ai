@@ -1,7 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
-import { verifyResponse as runClaimVerification } from '../services/claimVerifier.ts';
-import { buildSystemInstruction, classifyQuery } from '../services/gcgoEngine.ts';
+import { verifyResponse as runClaimVerification } from '../services/claimVerifier';
+import { buildSystemInstruction, classifyQuery } from '../services/gcgoEngine';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';

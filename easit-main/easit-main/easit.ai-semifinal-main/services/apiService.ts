@@ -1,6 +1,6 @@
-import type { User, Conversation } from '../types.ts';
-import { supabase } from './supabaseClient.ts';
-import { getEncryptionKey, encryptConversation, decryptConversation, isEncrypted } from './encryption.ts';
+import type { User, Conversation } from '../types';
+import { supabase } from './supabaseClient';
+import { getEncryptionKey, encryptConversation, decryptConversation, isEncrypted } from './encryption';
 
 export interface ApiKey { id: string; key_value: string; created_at: string; }
 

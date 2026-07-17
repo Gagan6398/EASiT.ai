@@ -5,8 +5,8 @@
  * which handles the 3-stage RAG Verification Pipeline securely.
  */
 
-import type { Message, Source, VerificationMetadata, PersonaSettings, QueryMode } from '../types.ts';
-import { getApiKey } from './apiService.ts'; // We'll assume the user has a key
+import type { Message, Source, VerificationMetadata, PersonaSettings, QueryMode } from '../types';
+import { getApiKey } from './apiService'; // We'll assume the user has a key
 
 // ─────────────────────────────────────────────────────
 // 1. QUERY CLASSIFICATION (Client-side for UI responsiveness)

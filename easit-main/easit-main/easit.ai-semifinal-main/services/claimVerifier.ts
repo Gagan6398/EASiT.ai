@@ -8,7 +8,7 @@
  * This is NOT the AI checking itself — it's deterministic code-level verification.
  */
 
-import type { FactSource } from './factSources.ts';
+import type { FactSource } from './factSources';
 
 export interface ClaimVerification {
   claim: string;
