@@ -12,8 +12,7 @@ interface LandingPageProps {
   onSignOut: () => void;
 }
 
-import { ReviewsSidebar } from './ReviewsSidebar.tsx';
-
+import { ReviewsSection } from './ReviewsSection.tsx';
 export const LandingPage: React.FC<LandingPageProps> = ({ user, onOpenLogin, onOpenSignup, onGoToChat, onSignOut }) => {
     const navigate = useNavigate();
     const isAuthed = !!user;
@@ -64,8 +63,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ user, onOpenLogin, onO
     const verbosityOptions: Array<'Concise' | 'Balanced' | 'Detailed'> = ['Concise', 'Balanced', 'Detailed'];
 
     return (
-        <div className="bg-[#0f1115] min-h-screen text-gray-200 font-sans selection:bg-[#00F0FF] selection:text-black flex flex-col items-center overflow-x-hidden relative">
-            <ReviewsSidebar user={user} />
+        <div className="bg-[#0f1115] min-h-screen text-gray-200 font-sans selection:bg-[#00F0FF] selection:text-black flex flex-col items-center overflow-x-hidden">
             {/* ── Navbar ── */}
             <header className="w-full max-w-7xl mx-auto px-6 py-6 flex justify-between items-center z-50 animate-slide-up-fade-in sticky top-0 bg-[#0f1115]/90 backdrop-blur-md" style={{ animationDelay: '0.1s' }}>
                 <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
@@ -524,6 +522,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ user, onOpenLogin, onO
                         <CreditCard size={16} /> View Pricing & Buy Credits
                     </button>
                 </section>
+
+                <ReviewsSection user={user} />
 
                 {/* ── Meet the Founder ── */}
                 <section className="w-full max-w-4xl mx-auto px-6 py-24 text-center border-t border-gray-800/50">
