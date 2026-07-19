@@ -212,13 +212,29 @@ export default async function handler(req: any, res: any) {
         
         return res.end();
       } catch (err: any) {
+        if (process.env.OPENROUTER_API_KEY && !fullText) {
+          console.warn('All Gemini keys failed or rate-limited. Falling back to OpenRouter...', err.message);
+          const orModel = model.startsWith('gemini') ? `google/${model}` : model;
+          return handleOpenRouterRequest(req, res, { query, conversationHistory, persona, stream, model: orModel, startTime });
+        }
         console.error('Streaming error:', err);
         res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
         return res.end();
       }
     } else {
       // Non-streaming
-      const response = await executeWithRetry((aiInstance) => aiInstance.models.generateContent({ model, contents, config }));
+      let response;
+      try {
+        response = await executeWithRetry((aiInstance) => aiInstance.models.generateContent({ model, contents, config }));
+      } catch (err: any) {
+        if (process.env.OPENROUTER_API_KEY) {
+          console.warn('All Gemini keys failed or rate-limited. Falling back to OpenRouter...', err.message);
+          const orModel = model.startsWith('gemini') ? `google/${model}` : model;
+          return handleOpenRouterRequest(req, res, { query, conversationHistory, persona, stream, model: orModel, startTime });
+        }
+        throw err;
+      }
+      
       const fullText = response.text || '';
       const sources: any[] = [];
       if (response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
