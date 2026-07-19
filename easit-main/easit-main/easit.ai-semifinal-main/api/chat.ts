@@ -82,9 +82,13 @@ export default async function handler(req: any, res: any) {
 
     const startTime = performance.now();
 
+    // ── STAGE 1: CLASSIFY & CONFIGURE ──
+    const classification = classifyQuery(query);
+    const mode = classification.type === 'casual' ? 'quick' : 'verified';
+
     // ── ROUTE: OPENROUTER (Premium Models) ──
     if (model.includes('/') && !model.startsWith('gemini')) {
-      return handleOpenRouterRequest(req, res, { query, conversationHistory, persona, stream, model, startTime });
+      return handleOpenRouterRequest(req, res, { query, conversationHistory, persona, stream, model, startTime, coveEnabled, mode });
     }
 
     // ── ROUTE: GEMINI (Free Models) ──
@@ -141,9 +145,6 @@ export default async function handler(req: any, res: any) {
 
     const ai = new GoogleGenAI({ apiKey: geminiKeys[0] });
 
-    // ── STAGE 1: CLASSIFY & CONFIGURE ──
-    const classification = classifyQuery(query);
-    const mode = classification.type === 'casual' ? 'quick' : 'verified';
     const shouldSearch = enableSearch && classification.shouldSearch;
 
     const systemInstruction = buildSystemInstruction(persona, mode);
@@ -190,8 +191,17 @@ export default async function handler(req: any, res: any) {
         let verificationReport: any = { totalClaims: 0, verifiedClaims: 0, unverifiedClaims: 0, verificationRate: 100, claims: [], adjustedConfidence: 75 };
 
         if (coveEnabled && mode === 'verified' && fullText.length > 100) {
+          const executeVerification = async (prompt: string, temp: number) => {
+            const res = await executeWithRetry((ai) => ai.models.generateContent({
+              model: 'gemini-2.5-flash',
+              contents: [{ role: 'user', parts: [{ text: prompt }] }],
+              config: { temperature: temp }
+            }));
+            return (res.text || '').trim();
+          };
+          
           try {
-            verificationReport = await runCoVePipeline(executeWithRetry, model, fullText);
+            verificationReport = await runCoVePipeline(executeVerification, fullText);
             
             // If CoVe produced a revised response, stream the correction
             if (verificationReport.revisedText && verificationReport.revisedText !== fullText) {
@@ -215,7 +225,7 @@ export default async function handler(req: any, res: any) {
         if (process.env.OPENROUTER_API_KEY && !fullText) {
           console.warn('All Gemini keys failed or rate-limited. Falling back to OpenRouter...', err.message);
           const orModel = model.startsWith('gemini') ? `google/${model}` : model;
-          return handleOpenRouterRequest(req, res, { query, conversationHistory, persona, stream, model: orModel, startTime });
+          return handleOpenRouterRequest(req, res, { query, conversationHistory, persona, stream, model: orModel, startTime, coveEnabled, mode });
         }
         console.error('Streaming error:', err);
         res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
@@ -230,7 +240,7 @@ export default async function handler(req: any, res: any) {
         if (process.env.OPENROUTER_API_KEY) {
           console.warn('All Gemini keys failed or rate-limited. Falling back to OpenRouter...', err.message);
           const orModel = model.startsWith('gemini') ? `google/${model}` : model;
-          return handleOpenRouterRequest(req, res, { query, conversationHistory, persona, stream, model: orModel, startTime });
+          return handleOpenRouterRequest(req, res, { query, conversationHistory, persona, stream, model: orModel, startTime, coveEnabled, mode });
         }
         throw err;
       }
@@ -246,8 +256,16 @@ export default async function handler(req: any, res: any) {
       }
 
       let verificationReport: any = { totalClaims: 0, verifiedClaims: 0, unverifiedClaims: 0, verificationRate: 100, claims: [], adjustedConfidence: 75 };
-      if (coveEnabled && fullText.length > 100) {
-        try { verificationReport = await runCoVePipeline(executeWithRetry, model, fullText); } catch (e) { /* fallback */ }
+      if (coveEnabled && mode === 'verified' && fullText.length > 100) {
+        const executeVerification = async (prompt: string, temp: number) => {
+          const res = await executeWithRetry((ai) => ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            config: { temperature: temp }
+          }));
+          return (res.text || '').trim();
+        };
+        try { verificationReport = await runCoVePipeline(executeVerification, fullText); } catch (e) { /* fallback */ }
       }
 
       return res.status(200).json({
@@ -267,19 +285,15 @@ export default async function handler(req: any, res: any) {
 
 // ─── CoVe Pipeline (3-Stage Verification) ───
 
-async function runCoVePipeline(executeWithRetry: any, model: string, responseText: string) {
-  const verificationModel = 'gemini-2.5-flash'; // Always use flash for verification (fast + free)
-
+async function runCoVePipeline(executeVerification: (prompt: string, temperature: number) => Promise<string>, responseText: string) {
   // Stage 1: Extract claims
-  const claimsResponse = await executeWithRetry((aiInstance: any) => aiInstance.models.generateContent({
-    model: verificationModel,
-    contents: [{ role: 'user', parts: [{ text: COVE_EXTRACT_CLAIMS_PROMPT + responseText }] }],
-    config: { temperature: 0.1 }
-  }));
+  let claimsText = '';
+  try {
+    claimsText = await executeVerification(COVE_EXTRACT_CLAIMS_PROMPT + responseText, 0.1);
+  } catch { /* skip */ }
 
   let claims: string[] = [];
   try {
-    const claimsText = (claimsResponse.text || '').trim();
     const jsonMatch = claimsText.match(/\[[\s\S]*\]/);
     if (jsonMatch) claims = JSON.parse(jsonMatch[0]);
   } catch { claims = []; }
@@ -297,13 +311,7 @@ async function runCoVePipeline(executeWithRetry: any, model: string, responseTex
     const question = `Is the following statement factually accurate? "${claim}" Answer with TRUE, FALSE, or UNCERTAIN, followed by a brief explanation.`;
     
     try {
-      const verifyResponse = await executeWithRetry((aiInstance: any) => aiInstance.models.generateContent({
-        model: verificationModel,
-        contents: [{ role: 'user', parts: [{ text: COVE_VERIFY_CLAIM_PROMPT + question }] }],
-        config: { temperature: 0.1 }
-      }));
-      
-      const answer = (verifyResponse.text || '').trim();
+      const answer = await executeVerification(COVE_VERIFY_CLAIM_PROMPT + question, 0.1);
       const isVerified = answer.toUpperCase().startsWith('TRUE');
       const isUncertain = answer.toUpperCase().startsWith('UNCERTAIN');
       
@@ -333,12 +341,7 @@ async function runCoVePipeline(executeWithRetry: any, model: string, responseTex
       .replace('{VERIFICATIONS}', verificationsBlock);
 
     try {
-      const reviseResponse = await executeWithRetry((aiInstance: any) => aiInstance.models.generateContent({
-        model: verificationModel,
-        contents: [{ role: 'user', parts: [{ text: revisePrompt }] }],
-        config: { temperature: 0.2 }
-      }));
-      revisedText = (reviseResponse.text || '').trim();
+      revisedText = await executeVerification(revisePrompt, 0.2);
     } catch { /* keep original */ }
   }
 
@@ -362,14 +365,14 @@ async function runCoVePipeline(executeWithRetry: any, model: string, responseTex
 // ─── OpenRouter Handler (Premium Models) ───
 
 async function handleOpenRouterRequest(req: any, res: any, opts: any) {
-  const { query, conversationHistory, persona, stream, model, startTime } = opts;
+  const { query, conversationHistory, persona, stream, model, startTime, coveEnabled, mode } = opts;
   const openRouterKey = process.env.OPENROUTER_API_KEY;
   
   if (!openRouterKey) {
     return res.status(500).json({ error: 'OpenRouter API key not configured' });
   }
 
-  const systemInstruction = buildSystemInstruction(persona, 'verified');
+  const systemInstruction = buildSystemInstruction(persona, mode || 'verified');
   
   const messages = [
     { role: 'system', content: systemInstruction },
@@ -379,6 +382,22 @@ async function handleOpenRouterRequest(req: any, res: any, opts: any) {
     })),
     { role: 'user', content: query }
   ];
+
+  const executeVerification = async (prompt: string, temp: number) => {
+    const verifyRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openRouterKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://easitai-semifinal-main.vercel.app',
+        'X-Title': 'Easit.ai'
+      },
+      body: JSON.stringify({ model: 'google/gemini-2.5-flash', messages: [{ role: 'user', content: prompt }], temperature: temp })
+    });
+    if (!verifyRes.ok) throw new Error('Verification failed');
+    const data = await verifyRes.json();
+    return data.choices?.[0]?.message?.content || '';
+  };
 
   if (stream) {
     res.setHeader('Content-Type', 'text/event-stream');
@@ -430,9 +449,22 @@ async function handleOpenRouterRequest(req: any, res: any, opts: any) {
         }
       }
 
+      let verificationReport: any = { totalClaims: 0, verifiedClaims: 0, unverifiedClaims: 0, verificationRate: 100, claims: [], adjustedConfidence: 75 };
+      if (coveEnabled && mode === 'verified' && fullText.length > 100) {
+        try {
+          verificationReport = await runCoVePipeline(executeVerification, fullText);
+          if (verificationReport.revisedText && verificationReport.revisedText !== fullText) {
+            res.write(`data: ${JSON.stringify({ correction: true, text: verificationReport.revisedText })}\n\n`);
+            fullText = verificationReport.revisedText;
+          }
+        } catch (coveErr) {
+          console.warn('[CoVe OpenRouter] Verification failed:', coveErr);
+        }
+      }
+
       res.write(`data: ${JSON.stringify({ 
         done: true, sources: [],
-        verificationReport: { totalClaims: 0, verifiedClaims: 0, unverifiedClaims: 0, verificationRate: 0, claims: [], adjustedConfidence: 70 },
+        verificationReport,
         responseTimeMs: Math.round(performance.now() - startTime),
         modelUsed: model
       })}\n\n`);
@@ -458,12 +490,20 @@ async function handleOpenRouterRequest(req: any, res: any, opts: any) {
     if (!orRes.ok) throw new Error(`OpenRouter error: ${await orRes.text()}`);
     const data = await orRes.json();
     
+    let fullText = data.choices?.[0]?.message?.content || '';
+    let verificationReport: any = { totalClaims: 0, verifiedClaims: 0, unverifiedClaims: 0, verificationRate: 100, claims: [], adjustedConfidence: 75 };
+    
+    if (coveEnabled && mode === 'verified' && fullText.length > 100) {
+      try { verificationReport = await runCoVePipeline(executeVerification, fullText); } catch (e) { /* fallback */ }
+    }
+
     return res.status(200).json({
-      text: data.choices?.[0]?.message?.content || '',
+      text: verificationReport.revisedText || fullText,
       sources: [],
-      verificationReport: { totalClaims: 0, verifiedClaims: 0, unverifiedClaims: 0, verificationRate: 0, claims: [], adjustedConfidence: 70 },
+      verificationReport,
       responseTimeMs: Math.round(performance.now() - startTime),
       modelUsed: model
     });
   }
 }
+
