@@ -161,10 +161,10 @@ export default async function handler(req: any, res: any) {
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
 
+      let fullText = '';
       try {
         const streamResponse = executeStreamWithRetry((aiInstance) => aiInstance.models.generateContentStream({ model, contents, config }));
 
-        let fullText = '';
         const sources: any[] = [];
         let tokenUsage: any = undefined;
 
