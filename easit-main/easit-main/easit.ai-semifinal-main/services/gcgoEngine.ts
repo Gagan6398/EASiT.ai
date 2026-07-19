@@ -219,21 +219,26 @@ export async function generateWithConsensus(options: GenerateOptions): Promise<C
       
       for (const line of lines) {
         if (line.startsWith('data: ')) {
+          let data;
           try {
-            const data = JSON.parse(line.slice(6));
-            if (data.error) throw new Error(data.error);
-            
-            if (data.text) {
-              fullText += data.text;
-              options.onChunk(fullText);
-            }
-            
-            if (data.done) {
-              finalSources = data.sources || [];
-              finalMetadata = data.verificationReport;
-            }
+            data = JSON.parse(line.slice(6));
           } catch (e) {
-            // Ignore incomplete JSON chunks, wait for the rest
+            continue; // Ignore incomplete JSON chunks, wait for the rest
+          }
+          
+          if (data.error) throw new Error(data.error);
+          
+          if (data.correction && data.text) {
+             fullText = data.text;
+             options.onChunk(fullText);
+          } else if (data.text) {
+            fullText += data.text;
+            options.onChunk(fullText);
+          }
+          
+          if (data.done) {
+            finalSources = data.sources || [];
+            finalMetadata = data.verificationReport;
           }
         }
       }
