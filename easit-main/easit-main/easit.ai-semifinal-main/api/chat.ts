@@ -91,20 +91,9 @@ export default async function handler(req: any, res: any) {
     const fallbackEnv = process.env.GEMINI_FALLBACK_KEYS || process.env.VITE_GEMINI_FALLBACK_KEYS || "";
     const fallbackList = fallbackEnv.split(',').map(k => k.trim()).filter(Boolean);
     
-    const obfKeys = [
-      "gHE-8f7ZlbmdJSQPQCgTWbBjHmazIDDtimkyWfEKkoMVJ6NR8bA.QA",
-      "QAst-1nlzBWLpLRO-HFQLPI2U1syNKHu4H3QL0LtC41K6NR8bA.QA",
-      "grRR-An3h7J_vwcA0VYxf-LWKTTfe3vOE8U_O7E4NfDJ6NR8bA.QA",
-      "AN-q_EqRlTiTfRtJWsPJGfWnPgt6jw-uPULyUxBzVEO_L6NR8bA.QA",
-      "gGydW9aDuklB7jaYffymPcqB6kRojAe8yzKY0rzsYUI6NR8bA.QA",
-      "A5v1G61LofWeWHmdCX0NttirijxZh3AwPavAYiZMsq0jI6NR8bA.QA",
-      "g33gC37TmAFT93P11dGevRoR3_kyY6WK2b4MDqiq495L3I6NR8bA.QA"
-    ].map(k => k.split('').reverse().join(''));
-
     const geminiKeys = Array.from(new Set([
       process.env.GEMINI_API_KEY || process.env.VITE_GOOGLE_GENERATIVE_AI_KEY,
-      ...fallbackList,
-      ...obfKeys
+      ...fallbackList
     ].filter(Boolean))) as string[];
 
     if (geminiKeys.length === 0) return res.status(500).json({ error: 'Server configuration error: Missing Gemini API Key' });
