@@ -392,7 +392,7 @@ async function handleOpenRouterRequest(req: any, res: any, opts: any) {
         'HTTP-Referer': 'https://easitai-semifinal-main.vercel.app',
         'X-Title': 'Easit.ai'
       },
-      body: JSON.stringify({ model: 'google/gemini-2.5-flash', messages: [{ role: 'user', content: prompt }], temperature: temp })
+      body: JSON.stringify({ model: 'google/gemini-2.5-flash', messages: [{ role: 'user', content: prompt }], temperature: temp, max_tokens: 4000 })
     });
     if (!verifyRes.ok) throw new Error('Verification failed');
     const data = await verifyRes.json();
@@ -413,7 +413,7 @@ async function handleOpenRouterRequest(req: any, res: any, opts: any) {
           'HTTP-Referer': 'https://easitai-semifinal-main.vercel.app',
           'X-Title': 'Easit.ai'
         },
-        body: JSON.stringify({ model, messages, stream: true })
+        body: JSON.stringify({ model, messages, stream: true, max_tokens: 4000 })
       });
 
       if (!orRes.ok) {
@@ -484,7 +484,7 @@ async function handleOpenRouterRequest(req: any, res: any, opts: any) {
         'HTTP-Referer': 'https://easitai-semifinal-main.vercel.app',
         'X-Title': 'Easit.ai'
       },
-      body: JSON.stringify({ model, messages, stream: false })
+      body: JSON.stringify({ model, messages, stream: false, max_tokens: 4000 })
     });
 
     if (!orRes.ok) throw new Error(`OpenRouter error: ${await orRes.text()}`);
