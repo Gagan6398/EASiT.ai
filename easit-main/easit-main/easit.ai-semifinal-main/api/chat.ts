@@ -51,19 +51,72 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    // ── AUTHENTICATION ──
+    // ── AUTHENTICATION & ENTERPRISE KEY VALIDATION ──
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+      return res.status(401).json({ error: 'Missing or invalid Authorization header. Use: Authorization: Bearer easit_sk_XXXX' });
     }
 
     const apiKey = authHeader.split(' ')[1];
-    const { data: keyData, error: keyError } = await supabase
-      .from('api_keys').select('user_id').eq('key_value', apiKey).single();
+    let keyRecord: any = null;
+    let isEnterpriseKey = false;
 
-    if (keyError || !keyData) {
-      if (!apiKey.startsWith('easit_live_')) {
-        return res.status(401).json({ error: 'Invalid API key' });
+    if (apiKey.startsWith('easit_sk_')) {
+      // ── Enterprise API Key Validation ──
+      const { data: keyData, error: keyError } = await supabase
+        .from('api_keys')
+        .select('id, user_uid, key_value, plan, rate_limit, daily_limit, queries_used_today, total_queries, is_active, expires_at')
+        .eq('key_value', apiKey)
+        .single();
+
+      if (keyError || !keyData) {
+        return res.status(401).json({ error: 'Invalid API key. Generate a key at /api/enterprise?action=register' });
+      }
+
+      if (!keyData.is_active) {
+        return res.status(403).json({ error: 'API key has been revoked. Generate a new key or rotate this one.' });
+      }
+
+      const now = new Date();
+      if (keyData.expires_at && new Date(keyData.expires_at) < now) {
+        return res.status(403).json({ error: 'API key has expired. Renew your subscription to continue.' });
+      }
+
+      if (keyData.queries_used_today >= keyData.daily_limit) {
+        return res.status(429).json({
+          error: 'Daily query limit exceeded.',
+          daily_limit: keyData.daily_limit,
+          queries_used: keyData.queries_used_today,
+          plan: keyData.plan,
+          upgrade_hint: 'Upgrade your plan at /api/enterprise?action=plans for higher limits.',
+          reset_at: new Date(new Date().setHours(24, 0, 0, 0)).toISOString()
+        });
+      }
+
+      keyRecord = keyData;
+      isEnterpriseKey = true;
+
+      // Set rate limit headers for the developer
+      res.setHeader('X-RateLimit-Limit', keyData.daily_limit.toString());
+      res.setHeader('X-RateLimit-Remaining', Math.max(0, keyData.daily_limit - keyData.queries_used_today - 1).toString());
+      res.setHeader('X-RateLimit-Reset', new Date(new Date().setHours(24, 0, 0, 0)).toISOString());
+      res.setHeader('X-Easit-Plan', keyData.plan);
+
+      // Increment usage counters (fire and forget — don't block the response)
+      supabase.from('api_keys').update({
+        queries_used_today: keyData.queries_used_today + 1,
+        total_queries: (keyData.total_queries || 0) + 1,
+        last_used_at: new Date().toISOString()
+      }).eq('id', keyData.id).then(() => {});
+
+    } else if (apiKey.startsWith('easit_live_')) {
+      // Legacy internal key — allow through (for Easit's own frontend)
+    } else {
+      // Fallback: check old api_keys table format for backwards compatibility
+      const { data: keyData, error: keyError } = await supabase
+        .from('api_keys').select('user_uid').eq('key_value', apiKey).single();
+      if (keyError || !keyData) {
+        return res.status(401).json({ error: 'Invalid API key. Get your key at /api/enterprise?action=register' });
       }
     }
 
@@ -92,33 +145,50 @@ export default async function handler(req: any, res: any) {
     }
 
     // ── ROUTE: GEMINI (Free Models) ──
-    const fallbackEnv = process.env.GEMINI_FALLBACK_KEYS || process.env.VITE_GEMINI_FALLBACK_KEYS || "";
-    const fallbackList = fallbackEnv.split(',').map(k => k.trim()).filter(Boolean);
-    
-    const geminiKeys = Array.from(new Set([
-      process.env.GEMINI_API_KEY || process.env.VITE_GOOGLE_GENERATIVE_AI_KEY,
-      ...fallbackList
-    ].filter(Boolean))) as string[];
+    const geminiKeysRaw = process.env.GEMINI_API_KEYS || process.env.VITE_GOOGLE_GENERATIVE_AI_KEY || '';
+    const geminiKeys = geminiKeysRaw
+      .split(',')
+      .map(k => k.trim())
+      .filter(Boolean);
+
+    // Fallback array parsed securely from environment
+    if (geminiKeys.length === 0 && process.env.VITE_GOOGLE_GENERATIVE_AI_KEY) {
+      geminiKeys.push(process.env.VITE_GOOGLE_GENERATIVE_AI_KEY);
+    }
 
     if (geminiKeys.length === 0) return res.status(500).json({ error: 'Server configuration error: Missing Gemini API Key' });
 
+    // We add a strict 5-second timer to the retry loop. If we try too many dead keys, 
+    // it will exceed Vercel's 10-second timeout. This bailout ensures we can safely fallback to Llama.
     const executeWithRetry = async (operation: (aiInstance: any) => Promise<any>) => {
       let lastError: any;
+      const loopStart = performance.now();
       for (const key of geminiKeys) {
+        if (performance.now() - loopStart > 5000) {
+          console.warn('Gemini retry loop exceeded 5 seconds. Bailing out to prevent Vercel timeout.');
+          break;
+        }
         try {
           const aiInstance = new GoogleGenAI({ apiKey: key });
           return await operation(aiInstance);
         } catch (error: any) {
           console.warn(`Gemini API error with a key, trying backup... Error: ${error?.message || error}`);
           lastError = error;
+          // Fail fast if quota is clearly exhausted across the project
+          if (error?.message?.includes('RESOURCE_EXHAUSTED')) break;
         }
       }
-      throw lastError;
+      throw lastError || new Error('All Gemini keys failed');
     };
 
     const executeStreamWithRetry = async function* (operation: (aiInstance: any) => any) {
       let lastError: any;
+      const loopStart = performance.now();
       for (const key of geminiKeys) {
+        if (performance.now() - loopStart > 5000) {
+          console.warn('Gemini stream retry loop exceeded 5 seconds. Bailing out to prevent Vercel timeout.');
+          break;
+        }
         try {
           const aiInstance = new GoogleGenAI({ apiKey: key });
           const stream = await operation(aiInstance);
@@ -138,9 +208,10 @@ export default async function handler(req: any, res: any) {
         } catch (error: any) {
           console.warn(`Gemini API stream error with a key, trying backup... Error: ${error?.message || error}`);
           lastError = error;
+          if (error?.message?.includes('RESOURCE_EXHAUSTED')) break;
         }
       }
-      throw lastError;
+      throw lastError || new Error('All Gemini keys failed');
     };
 
     const ai = new GoogleGenAI({ apiKey: geminiKeys[0] });
@@ -224,7 +295,7 @@ export default async function handler(req: any, res: any) {
       } catch (err: any) {
         if (process.env.OPENROUTER_API_KEY && !fullText) {
           console.warn('All Gemini keys failed or rate-limited. Falling back to OpenRouter...', err.message);
-          const orModel = model.startsWith('gemini') ? `google/${model}` : model;
+          const orModel = model.startsWith('gemini') ? `meta-llama/llama-3.1-8b-instruct:free` : model;
           return handleOpenRouterRequest(req, res, { query, conversationHistory, persona, stream, model: orModel, startTime, coveEnabled, mode });
         }
         console.error('Streaming error:', err);
@@ -239,7 +310,7 @@ export default async function handler(req: any, res: any) {
       } catch (err: any) {
         if (process.env.OPENROUTER_API_KEY) {
           console.warn('All Gemini keys failed or rate-limited. Falling back to OpenRouter...', err.message);
-          const orModel = model.startsWith('gemini') ? `google/${model}` : model;
+          const orModel = model.startsWith('gemini') ? `meta-llama/llama-3.1-8b-instruct:free` : model;
           return handleOpenRouterRequest(req, res, { query, conversationHistory, persona, stream, model: orModel, startTime, coveEnabled, mode });
         }
         throw err;
@@ -268,12 +339,38 @@ export default async function handler(req: any, res: any) {
         try { verificationReport = await runCoVePipeline(executeVerification, fullText); } catch (e) { /* fallback */ }
       }
 
-      return res.status(200).json({
+      // Log usage for enterprise keys (fire and forget)
+      if (isEnterpriseKey && keyRecord) {
+        supabase.from('api_usage_logs').insert({
+          api_key_id: keyRecord.id,
+          user_uid: keyRecord.user_uid,
+          query_text: query.substring(0, 200),
+          model_used: model,
+          tokens_in: response.usageMetadata?.promptTokenCount || 0,
+          tokens_out: response.usageMetadata?.candidatesTokenCount || 0,
+          verification_status: verificationReport.verificationRate >= 80 ? 'verified' : verificationReport.verificationRate >= 50 ? 'partial' : 'skipped',
+          latency_ms: Math.round(performance.now() - startTime),
+        }).then(() => {});
+      }
+
+      const responsePayload: any = {
         text: verificationReport.revisedText || fullText,
         sources, verificationReport,
         responseTimeMs: Math.round(performance.now() - startTime),
         modelUsed: model
-      });
+      };
+
+      // Add usage info for enterprise API consumers
+      if (isEnterpriseKey && keyRecord) {
+        responsePayload.usage = {
+          queries_used_today: keyRecord.queries_used_today + 1,
+          daily_limit: keyRecord.daily_limit,
+          queries_remaining: Math.max(0, keyRecord.daily_limit - keyRecord.queries_used_today - 1),
+          plan: keyRecord.plan
+        };
+      }
+
+      return res.status(200).json(responsePayload);
     }
 
   } catch (err: any) {
@@ -384,7 +481,7 @@ async function handleOpenRouterRequest(req: any, res: any, opts: any) {
   ];
 
   const executeVerification = async (prompt: string, temp: number) => {
-    const verifyRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    let verifyRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openRouterKey}`,
@@ -392,8 +489,21 @@ async function handleOpenRouterRequest(req: any, res: any, opts: any) {
         'HTTP-Referer': 'https://easitai-semifinal-main.vercel.app',
         'X-Title': 'Easit.ai'
       },
-      body: JSON.stringify({ model: 'google/gemini-2.5-flash', messages: [{ role: 'user', content: prompt }], temperature: temp, max_tokens: 3000, max_completion_tokens: 3000 })
+      body: JSON.stringify({ model: 'google/gemini-2.5-flash', messages: [{ role: 'user', content: prompt }], temperature: temp })
     });
+    
+    if (verifyRes.status === 402) {
+      verifyRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openRouterKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://easitai-semifinal-main.vercel.app',
+          'X-Title': 'Easit.ai'
+        },
+        body: JSON.stringify({ model: 'meta-llama/llama-3.1-8b-instruct:free', messages: [{ role: 'user', content: prompt }], temperature: temp })
+      });
+    }
     if (!verifyRes.ok) throw new Error('Verification failed');
     const data = await verifyRes.json();
     return data.choices?.[0]?.message?.content || '';
@@ -405,7 +515,7 @@ async function handleOpenRouterRequest(req: any, res: any, opts: any) {
     res.setHeader('Connection', 'keep-alive');
 
     try {
-      const orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      let orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${openRouterKey}`,
@@ -413,8 +523,21 @@ async function handleOpenRouterRequest(req: any, res: any, opts: any) {
           'HTTP-Referer': 'https://easitai-semifinal-main.vercel.app',
           'X-Title': 'Easit.ai'
         },
-        body: JSON.stringify({ model, messages, stream: true, max_tokens: 3000, max_completion_tokens: 3000 })
+        body: JSON.stringify({ model, messages, stream: true })
       });
+
+      if (orRes.status === 402) {
+        orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openRouterKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://easitai-semifinal-main.vercel.app',
+            'X-Title': 'Easit.ai'
+          },
+          body: JSON.stringify({ model: 'meta-llama/llama-3.1-8b-instruct:free', messages, stream: true })
+        });
+      }
 
       if (!orRes.ok) {
         const errText = await orRes.text();
@@ -476,7 +599,7 @@ async function handleOpenRouterRequest(req: any, res: any, opts: any) {
     }
   } else {
     // Non-streaming OpenRouter
-    const orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    let orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openRouterKey}`,
@@ -484,8 +607,21 @@ async function handleOpenRouterRequest(req: any, res: any, opts: any) {
         'HTTP-Referer': 'https://easitai-semifinal-main.vercel.app',
         'X-Title': 'Easit.ai'
       },
-      body: JSON.stringify({ model, messages, stream: false, max_tokens: 3000, max_completion_tokens: 3000 })
+      body: JSON.stringify({ model, messages, stream: false })
     });
+
+    if (orRes.status === 402) {
+      orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openRouterKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://easitai-semifinal-main.vercel.app',
+          'X-Title': 'Easit.ai'
+        },
+        body: JSON.stringify({ model: 'meta-llama/llama-3.1-8b-instruct:free', messages, stream: false })
+      });
+    }
 
     if (!orRes.ok) throw new Error(`OpenRouter error: ${await orRes.text()}`);
     const data = await orRes.json();
