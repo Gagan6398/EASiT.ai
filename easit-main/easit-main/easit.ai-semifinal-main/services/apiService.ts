@@ -153,40 +153,98 @@ const apiService = {
     },
 
     async getApiKeys(): Promise<ApiKey[]> {
+        let userUid = localStorage.getItem('easit_user_uid');
         const { data: session } = await supabase.auth.getSession();
-        if (!session.session) return [];
-        const { data, error } = await supabase.from('api_keys').select('*').order('created_at', { ascending: false });
-        if (error) throw new Error(error.message);
         
-        // Store the newest key in local storage for the engine to use
-        if (data && data.length > 0) {
-            localStorage.setItem('easit-api-key', data[0].key_value);
+        if (session?.session?.user?.email && !userUid) {
+            // Auto-register logged-in user
+            try {
+                const regRes = await fetch('/api/enterprise', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'register', email: session.session.user.email, name: session.session.user.user_metadata?.name || 'User' })
+                });
+                const regData = await regRes.json();
+                if (regData.user_uid) {
+                    userUid = regData.user_uid;
+                    localStorage.setItem('easit_user_uid', userUid);
+                }
+            } catch (e) {}
         }
-        
-        return data as ApiKey[];
+
+        if (!userUid) return [];
+
+        try {
+            const res = await fetch(`/api/enterprise?action=list_keys&user_uid=${userUid}`);
+            const data = await res.json();
+            if (data.keys) {
+                return data.keys.map((k: any) => ({
+                    id: k.id,
+                    key_value: k.key_prefix || k.key_value,
+                    created_at: k.created_at
+                }));
+            }
+        } catch (e) {
+            console.error("Failed to load keys via Enterprise API", e);
+        }
+
+        return [];
     },
 
-    async generateApiKey(): Promise<ApiKey> {
+    async generateApiKey(label: string = 'Default Key'): Promise<{ id: string; key_value: string; full_key: string; created_at: string }> {
+        let userUid = localStorage.getItem('easit_user_uid');
         const { data: session } = await supabase.auth.getSession();
-        if (!session.session) throw new Error('Must be logged in to generate API key');
-        
-        // Use cryptographically secure random UUID
-        const keyValue = `easit_live_${crypto.randomUUID().replace(/-/g, '')}`;
-        
-        const { data, error } = await supabase.from('api_keys').insert({
-            user_id: session.session.user.id,
-            key_value: keyValue
-        }).select().single();
-        
-        if (error) throw new Error(error.message);
-        
-        localStorage.setItem('easit-api-key', keyValue);
-        return data as ApiKey;
+        const userEmail = session?.session?.user?.email || `guest_${Date.now()}@easit.ai`;
+
+        if (!userUid) {
+            // Register as enterprise user
+            const regRes = await fetch('/api/enterprise', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'register', email: userEmail, name: 'Developer User' })
+            });
+            const regData = await regRes.json();
+            if (regData.user_uid) {
+                userUid = regData.user_uid;
+                localStorage.setItem('easit_user_uid', userUid);
+            } else if (regData.error === 'User already registered') {
+                userUid = regData.user_uid;
+                localStorage.setItem('easit_user_uid', userUid);
+            } else {
+                throw new Error(regData.error || 'Registration failed');
+            }
+        }
+
+        // Call enterprise endpoint to generate key
+        const res = await fetch('/api/enterprise', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'generate_key', user_uid: userUid, label })
+        });
+
+        const data = await res.json();
+        if (!res.ok || data.error) {
+            throw new Error(data.error || 'Failed to generate key');
+        }
+
+        localStorage.setItem('easit-api-key', data.api_key);
+
+        return {
+            id: data.key_id,
+            key_value: data.api_key.substring(0, 16) + '...',
+            full_key: data.api_key,
+            created_at: new Date().toISOString()
+        };
     },
 
     async deleteApiKey(id: string): Promise<void> {
-        const { error } = await supabase.from('api_keys').delete().eq('id', id);
-        if (error) throw new Error(error.message);
+        const userUid = localStorage.getItem('easit_user_uid');
+        if (!userUid) return;
+        await fetch('/api/enterprise', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'revoke_key', user_uid: userUid, key_id: id })
+        });
     }
 };
 

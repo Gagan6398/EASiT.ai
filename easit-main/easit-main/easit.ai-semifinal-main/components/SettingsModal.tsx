@@ -60,7 +60,7 @@ export function SettingsModal({ settings, onUpdate, onClose }: SettingsModalProp
   const [activeTab, setActiveTab] = useState<'persona' | 'api'>('persona');
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(false);
-  const [generating, setGenerating] = useState(false);
+  const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
 
   useEffect(() => {
     if (activeTab === 'api') {
@@ -82,16 +82,17 @@ export function SettingsModal({ settings, onUpdate, onClose }: SettingsModalProp
   const handleGenerateKey = async () => {
     setGenerating(true);
     try {
-      const newKey = await apiService.generateApiKey();
-      setApiKeys([newKey, ...apiKeys]);
-    } catch (e) {
-      alert("Failed to generate key. Are you logged in?");
+      const res = await apiService.generateApiKey('Web Portal Key');
+      setApiKeys([{ id: res.id, key_value: res.key_value, created_at: res.created_at }, ...apiKeys]);
+      setNewlyCreatedKey(res.full_key);
+    } catch (e: any) {
+      alert(e.message || "Failed to generate key.");
     }
     setGenerating(false);
   };
 
   const handleDeleteKey = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this API Key?')) return;
+    if (!confirm('Are you sure you want to revoke this API Key?')) return;
     try {
       await apiService.deleteApiKey(id);
       setApiKeys(apiKeys.filter(k => k.id !== id));
@@ -102,7 +103,7 @@ export function SettingsModal({ settings, onUpdate, onClose }: SettingsModalProp
 
   const handleCopy = (key: string) => {
     navigator.clipboard.writeText(key);
-    // Could add toast here, but simple implementation for now
+    alert("Key copied to clipboard!");
   };
 
   const updateSetting = (key: keyof PersonaSettings, value: any) => {
@@ -196,7 +197,23 @@ export function SettingsModal({ settings, onUpdate, onClose }: SettingsModalProp
                 {generating ? <Loader size={14} className="animate-spin" /> : <Plus size={14} />}
                 Generate
               </button>
-            </div>
+            {newlyCreatedKey && (
+              <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3 text-xs space-y-2">
+                <div className="font-semibold text-emerald-800 dark:text-emerald-300 flex justify-between items-center">
+                  <span>🎉 API Key Generated Successfully!</span>
+                  <button onClick={() => setNewlyCreatedKey(null)} className="text-gray-400 hover:text-gray-600">✕</button>
+                </div>
+                <div className="font-mono bg-white dark:bg-gray-900 p-2 rounded border border-emerald-100 dark:border-emerald-900 text-emerald-900 dark:text-emerald-200 break-all select-all">
+                  {newlyCreatedKey}
+                </div>
+                <div className="flex justify-between items-center text-emerald-700 dark:text-emerald-400">
+                  <span>Copy this key now. It won't be shown again in full.</span>
+                  <button onClick={() => handleCopy(newlyCreatedKey)} className="bg-emerald-600 text-white px-2.5 py-1 rounded font-medium hover:bg-emerald-700">
+                    Copy Key
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 min-h-[150px] p-4 space-y-3">
               {loading ? (
