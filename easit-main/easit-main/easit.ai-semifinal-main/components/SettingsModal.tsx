@@ -60,6 +60,7 @@ export function SettingsModal({ settings, onUpdate, onClose }: SettingsModalProp
   const [activeTab, setActiveTab] = useState<'persona' | 'api'>('persona');
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
 
   useEffect(() => {
@@ -197,6 +198,8 @@ export function SettingsModal({ settings, onUpdate, onClose }: SettingsModalProp
                 {generating ? <Loader size={14} className="animate-spin" /> : <Plus size={14} />}
                 Generate
               </button>
+            </div>
+
             {newlyCreatedKey && (
               <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3 text-xs space-y-2">
                 <div className="font-semibold text-emerald-800 dark:text-emerald-300 flex justify-between items-center">
